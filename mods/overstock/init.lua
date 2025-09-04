@@ -1,6 +1,13 @@
 core.register_node("overstock:barrel", {
 	description = "Barrel",
-	tiles = { "overstock_barrel_front.png" },
+	tiles = {
+		"overstock_barrel_top.png",
+		"overstock_barrel_bottom.png",
+		"overstock_barrel_front.png",
+		"overstock_barrel_side.png",
+		"overstock_barrel_side.png",
+		"overstock_barrel_side.png",
+	},
 	groups = {
 		axey = 1,
 		material_wood = 1,
