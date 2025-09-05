@@ -2,6 +2,9 @@ local impl = {}
 
 impl.INVENTORY_LISTNAME = "main"
 impl.CRATE_CAPACITY_STACKS = 64
+impl.BASE_LABEL_SIZE = { x = 0.25, y = 0.25 }
+
+local CHAR_SIZE = { x = 5, y = 12 }
 
 local function label_face(face)
   local faces = {
@@ -18,18 +21,41 @@ local function label_face(face)
   return faces[face]
 end
 
-function impl.label_offset(node)
+function label_offset(node)
   local facedir = node.param2 % 4
   return label_face(facedir).offset
 end
 
-function impl.label_yaw(node)
+function label_yaw(node)
   local facedir = node.param2 % 4
   return label_face(facedir).yaw
 end
 
+local function char_texture(char)
+  return "overstock_char_" .. char .. ".png"
+end
+
+local function generate_number_texture(digits)
+  local parts = {}
+
+  for i = 1, #digits do
+    local digit = digits:sub(i, i)
+    local texture = char_texture(digit)
+    local x = (i - 1) * CHAR_SIZE.x
+    table.insert(parts, string.format("%d,0=%s", x, texture))
+  end
+
+  local total_w = #digits * CHAR_SIZE.x
+  return string.format("[combine:%dx%d:%s", total_w, CHAR_SIZE.y, table.concat(parts, ":"))
+end
+
+function impl.generate_count_texture(count)
+  -- TODO: Implement
+  return generate_number_texture("123")
+end
+
 function impl.find_label_entity(pos, node, entity_name)
-  local target = vector.add(pos, impl.label_offset(node))
+  local target = vector.add(pos, label_offset(node))
   for _, obj in pairs(core.get_objects_inside_radius(target, 0.1)) do
     local entity = obj:get_luaentity()
     if entity and entity.name == entity_name then
@@ -46,14 +72,12 @@ function impl.remove_label_entity(pos, node, entity_name)
 end
 
 function impl.add_item_label_entity(pos, node, item_name)
-  local offset = impl.label_offset(node)
+  local offset = label_offset(node)
   local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_item_label", item_name)
   if obj then
-    obj:set_yaw(impl.label_yaw(node))
+    obj:set_yaw(label_yaw(node))
   end
 end
-
-impl.base_label_size = { x = 0.25, y = 0.25 }
 
 function impl.take_stack(pos, node, puncher)
   local meta = core.get_meta(pos)

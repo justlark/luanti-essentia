@@ -78,8 +78,8 @@ core.register_entity("overstock:crate_item_label", {
       self.object:set_properties({
         wield_item = item_name,
         visual_size = {
-          x = impl.base_label_size.x / wield_scale.x,
-          y = impl.base_label_size.y / wield_scale.y,
+          x = impl.BASE_LABEL_SIZE.x / wield_scale.x,
+          y = impl.BASE_LABEL_SIZE.y / wield_scale.y,
         },
       })
     end
@@ -92,7 +92,16 @@ core.register_entity("overstock:crate_count_label", {
     visual = "upright_sprite",
     physical = false,
     collide_with_objects = false,
+    static_save = false,
   },
+
+  on_activate = function(self, static_data)
+    local texture = impl.generate_count_texture()
+
+    self.object:set_properties({
+      textures = { texture },
+    })
+  end,
 })
 
 -- Spawn the crate labels when the node loads, since they don't get
