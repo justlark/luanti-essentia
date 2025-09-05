@@ -1,12 +1,12 @@
 local label_faces = {
   -- +Z
-  [0] = { offset = vector.new(0, 0.0, -0.501), yaw = 0 },
+  [0] = { offset = vector.new(0, 0.0, -0.5), yaw = 0 },
   -- -X
-  [1] = { offset = vector.new(-0.501, 0.0, 0), yaw = -math.pi / 2 },
+  [1] = { offset = vector.new(-0.5, 0.0, 0), yaw = -math.pi / 2 },
   -- -Z
-  [2] = { offset = vector.new(0, 0.0, 0.501), yaw = math.pi },
+  [2] = { offset = vector.new(0, 0.0, 0.5), yaw = math.pi },
   -- +X
-  [3] = { offset = vector.new(0.501, 0.0, 0), yaw = math.pi / 2 },
+  [3] = { offset = vector.new(0.5, 0.0, 0), yaw = math.pi / 2 },
 }
 
 local function label_offset(node)
@@ -92,26 +92,20 @@ core.register_craft({
 core.register_entity("overstock:barrel_item", {
   initial_properties = {
     pointable = false,
-    visual = "upright_sprite",
+    visual = "wielditem",
     physical = false,
     collide_with_objects = false,
-    visual_size = { x = 0.45, y = 0.45 },
+    visual_size = { x = 0.25, y = 0.25 },
   },
 
-  on_activate = function(self, staticdata)
-    if not staticdata or staticdata == "" then
+  on_activate = function(self, static_data)
+    if not static_data or static_data == "" then
       return
     end
 
-    local item_name = staticdata
-    local item_def = core.registered_items[item_name]
-    local node_def = core.registered_nodes[item_name]
-    local texture = (item_def and item_def.inventory_image)
-      or (node_def and (node_def.inventory_image or (node_def.tiles and node_def.tiles[6])))
-      or nil
-
-    if texture then
-      self.object:set_properties({ textures = { texture } })
+    local item_name = static_data
+    if item_name then
+      self.object:set_properties({ wield_item = item_name })
     end
   end,
 })
