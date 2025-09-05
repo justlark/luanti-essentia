@@ -107,6 +107,11 @@ core.register_entity("overstock:barrel_item_label", {
     visual = "wielditem",
     physical = false,
     collide_with_objects = false,
+    -- We *could* save these entities with the world and just destroy them with
+    -- the node, but if destroying the entity ever failed for any reason (a
+    -- bug, etc.), then the player would be left with floating labels that are
+    -- impossible to get rid of. Instead, we just regenerate the labels when
+    -- the node load, using an LBM.
     static_save = false,
   },
 
@@ -140,6 +145,8 @@ core.register_entity("overstock:barrel_count_label", {
   },
 })
 
+-- Spawn the barrel labels when the node loads, since they don't get
+-- persistently saved with the world.
 core.register_lbm({
   name = "overstock:respawn_barrel_labels",
   nodenames = { "overstock:barrel" },
