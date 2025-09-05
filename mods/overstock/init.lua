@@ -60,7 +60,8 @@ core.register_node("overstock:barrel", {
     container = 2,
   },
   on_construct = function(pos)
-    local inventory = core.get_inventory({ type = "node", pos = pos })
+    local meta = core.get_meta(pos)
+    local inventory = meta:get_inventory()
     inventory:set_size("main", barrel_capacity_stacks)
   end,
 
@@ -71,6 +72,13 @@ core.register_node("overstock:barrel", {
     end
 
     local meta = core.get_meta(pos)
+    local existing_item_name = meta:get_string("overstock:item")
+
+    if existing_item_name ~= item_name then
+      -- There is already an item of a different type in the barrel.
+      return itemstack
+    end
+
     meta:set_string("overstock:item", item_name)
 
     local entity = find_label_entity(pos, node, "overstock:barrel_item_label")
@@ -80,7 +88,39 @@ core.register_node("overstock:barrel", {
 
     add_item_label_entity(pos, node, item_name)
 
+    local barrel_inventory = core.get_inventory({ type = "node", pos = pos })
+    barrel_inventory:add_item("main", itemstack)
+    itemstack:clear()
+
     return itemstack
+  end,
+
+  on_punch = function(pos, _, puncher, _)
+    local meta = core.get_meta(pos)
+    local item_name = meta:get_string("overstock:item")
+
+    if item_name and item_name ~= "" then
+      local barrel_inventory = core.get_inventory({ type = "node", pos = pos })
+
+      local barrel_itemstack = ItemStack(item_name)
+
+      if not barrel_inventory:contains_item("main", barrel_itemstack) then
+        return
+      end
+
+      barrel_itemstack:set_count(barrel_itemstack:get_stack_max() or 1)
+
+      local player_inventory = puncher:get_inventory()
+      local wielded_itemstack = player_inventory:get_stack("main", puncher:get_wield_index())
+
+      local taken_itemstack = barrel_inventory:remove_item("main", barrel_itemstack)
+
+      if wielded_itemstack:is_empty() then
+        player_inventory:set_stack("main", puncher:get_wield_index(), taken_itemstack)
+      else
+        player_inventory:add_item("main", taken_itemstack)
+      end
+    end
   end,
 
   after_destruct = function(pos, node)
