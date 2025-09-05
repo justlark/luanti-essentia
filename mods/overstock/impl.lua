@@ -115,8 +115,11 @@ function impl.put_stack(pos, node, itemstack)
   impl.add_item_label_entity(pos, node, item_name)
 
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
-  crate_inventory:add_item(impl.inventory_listname, itemstack)
-  itemstack:clear()
+  local remaining_items = crate_inventory:add_item(impl.inventory_listname, itemstack)
+
+  if remaining_items and remaining_items:is_empty() then
+    itemstack:clear()
+  end
 
   return itemstack
 end
