@@ -95,6 +95,7 @@ core.register_entity("overstock:barrel_item", {
     visual = "wielditem",
     physical = false,
     collide_with_objects = false,
+    static_save = false,
     visual_size = { x = 0.25, y = 0.25 },
   },
 
@@ -117,4 +118,20 @@ core.register_entity("overstock:barrel_label", {
     physical = false,
     collide_with_objects = false,
   },
+})
+
+core.register_lbm({
+  name = "overstock:respawn_barrel_labels",
+  nodenames = { "overstock:barrel" },
+  run_at_every_load = true,
+  action = function(pos, node)
+    local meta = core.get_meta(pos)
+    local item_name = meta:get_string("display_item")
+    if item_name and item_name ~= "" then
+      local existing = find_label_entity(pos, node, "overstock:barrel_item")
+      if not existing then
+        add_item_label_entity(pos, node, item_name)
+      end
+    end
+  end,
 })
