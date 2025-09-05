@@ -9,6 +9,8 @@ local label_faces = {
   [3] = { offset = vector.new(0.5, 0.0, 0), yaw = math.pi / 2 },
 }
 
+local barrel_capacity_stacks = 64
+
 local function label_offset(node)
   local facedir = node.param2 % 4
   return label_faces[facedir].offset
@@ -57,6 +59,11 @@ core.register_node("overstock:barrel", {
     material_wood = 1,
     container = 2,
   },
+  on_construct = function(pos)
+    local inventory = core.get_inventory({ type = "node", pos = pos })
+    inventory:set_size("main", barrel_capacity_stacks)
+  end,
+
   on_rightclick = function(pos, node, _, itemstack)
     local item_name = itemstack:get_name()
     if item_name == "" then
