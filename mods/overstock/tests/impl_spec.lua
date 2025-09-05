@@ -15,7 +15,7 @@ describe("put stack", function()
     assert.equals(itemstack, new_itemstack)
   end)
 
-  it("does nothing if a different item is already in the barrel", function()
+  it("does nothing if a different item is already in the crate", function()
     local itemstack = {}
 
     function itemstack:get_name()
@@ -104,7 +104,7 @@ describe("put stack", function()
     mod.remove_label_entity = function(this_pos, this_node, this_entity_name)
       assert.equals(pos, this_pos)
       assert.equals(node, this_node)
-      assert.equals("overstock:barrel_item_label", this_entity_name)
+      assert.equals("overstock:crate_item_label", this_entity_name)
     end
 
     mod.add_item_label_entity = function(this_pos, this_node, this_item_name)
@@ -116,7 +116,7 @@ describe("put stack", function()
     mod.put_stack(pos, node, itemstack)
   end)
 
-  it("moves the itemstack from the player's hand to the barrel's inventory", function()
+  it("moves the itemstack from the player's hand to the crate's inventory", function()
     local was_cleared = false
 
     local itemstack = {
@@ -156,6 +156,6 @@ describe("put stack", function()
 
     mod.put_stack(pos, node, itemstack)
 
-    assert(was_cleared, "Expected itemstack to be cleared after being added to barrel inventory")
+    assert(was_cleared, "Expected itemstack to be cleared after being added to crate inventory")
   end)
 end)

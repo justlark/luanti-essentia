@@ -1,7 +1,7 @@
 local impl = {}
 
 impl.inventory_listname = "main"
-impl.barrel_capacity_stacks = 64
+impl.crate_capacity_stacks = 64
 
 local function label_face(face)
   local faces = {
@@ -47,7 +47,7 @@ end
 
 function impl.add_item_label_entity(pos, node, item_name)
   local offset = impl.label_offset(node)
-  local obj = core.add_entity(vector.add(pos, offset), "overstock:barrel_item_label", item_name)
+  local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_item_label", item_name)
   if obj then
     obj:set_yaw(impl.label_yaw(node))
   end
@@ -60,26 +60,26 @@ function impl.take_stack(pos, node, puncher)
   local item_name = meta:get_string("overstock:item")
 
   if not item_name or item_name == "" then
-    -- The barrel is empty.
+    -- The crate is empty.
     return
   end
 
-  local barrel_inventory = core.get_inventory({ type = "node", pos = pos })
-  local barrel_itemstack = ItemStack(item_name)
+  local crate_inventory = core.get_inventory({ type = "node", pos = pos })
+  local crate_itemstack = ItemStack(item_name)
 
-  if not barrel_inventory:contains_item(impl.inventory_listname, barrel_itemstack) then
-    -- The barrel is empty.
+  if not crate_inventory:contains_item(impl.inventory_listname, crate_itemstack) then
+    -- The crate is empty.
     return
   end
 
   -- Get a full stack, or as much as it contains.
-  barrel_itemstack:set_count(barrel_itemstack:get_stack_max() or 1)
+  crate_itemstack:set_count(crate_itemstack:get_stack_max() or 1)
 
   local player_inventory = puncher:get_inventory()
   local wielded_itemstack = player_inventory:get_stack(impl.inventory_listname, puncher:get_wield_index())
-  local taken_itemstack = barrel_inventory:remove_item(impl.inventory_listname, barrel_itemstack)
+  local taken_itemstack = crate_inventory:remove_item(impl.inventory_listname, crate_itemstack)
 
-  -- If the player is wielding a stack of the type in the barrel, add the taken
+  -- If the player is wielding a stack of the type in the crate, add the taken
   -- items to that stack. Otherwise, add the taken items to the player's
   -- inventory.
   if wielded_itemstack:is_empty() then
@@ -88,10 +88,10 @@ function impl.take_stack(pos, node, puncher)
     player_inventory:add_item(impl.inventory_listname, taken_itemstack)
   end
 
-  if not barrel_inventory:contains_item(impl.inventory_listname, ItemStack(item_name)) then
-    -- We've taken the last item from the barrel, so remove the label.
+  if not crate_inventory:contains_item(impl.inventory_listname, ItemStack(item_name)) then
+    -- We've taken the last item from the crate, so remove the label.
     meta:set_string("overstock:item", "")
-    impl.remove_label_entity(pos, node, "overstock:barrel_item_label")
+    impl.remove_label_entity(pos, node, "overstock:crate_item_label")
   end
 end
 
@@ -105,17 +105,17 @@ function impl.put_stack(pos, node, itemstack)
   local existing_item_name = meta:get_string("overstock:item")
 
   if existing_item_name ~= "" and existing_item_name ~= item_name then
-    -- There is already an item of a different type in the barrel.
+    -- There is already an item of a different type in the crate.
     return itemstack
   end
 
   meta:set_string("overstock:item", item_name)
 
-  impl.remove_label_entity(pos, node, "overstock:barrel_item_label")
+  impl.remove_label_entity(pos, node, "overstock:crate_item_label")
   impl.add_item_label_entity(pos, node, item_name)
 
-  local barrel_inventory = core.get_inventory({ type = "node", pos = pos })
-  barrel_inventory:add_item(impl.inventory_listname, itemstack)
+  local crate_inventory = core.get_inventory({ type = "node", pos = pos })
+  crate_inventory:add_item(impl.inventory_listname, itemstack)
   itemstack:clear()
 
   return itemstack

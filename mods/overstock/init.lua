@@ -1,14 +1,14 @@
 local impl = dofile(core.get_modpath("overstock") .. "/impl.lua")
 
-core.register_node("overstock:barrel", {
-  description = "Barrel",
+core.register_node("overstock:crate", {
+  description = "Storage Crate",
   tiles = {
-    "overstock_barrel_top.png",
-    "overstock_barrel_bottom.png",
-    "overstock_barrel_side.png",
-    "overstock_barrel_side.png",
-    "overstock_barrel_side.png",
-    "overstock_barrel_front.png",
+    "overstock_crate_top.png",
+    "overstock_crate_bottom.png",
+    "overstock_crate_side.png",
+    "overstock_crate_side.png",
+    "overstock_crate_side.png",
+    "overstock_crate_front.png",
   },
   paramtype2 = "4dir",
   _mcl_hardness = 2,
@@ -21,7 +21,7 @@ core.register_node("overstock:barrel", {
   on_construct = function(pos)
     local meta = core.get_meta(pos)
     local inventory = meta:get_inventory()
-    inventory:set_size(impl.inventory_listname, impl.barrel_capacity_stacks)
+    inventory:set_size(impl.inventory_listname, impl.crate_capacity_stacks)
   end,
 
   on_rightclick = function(pos, node, _, itemstack)
@@ -37,13 +37,13 @@ core.register_node("overstock:barrel", {
   end,
 
   after_destruct = function(pos, node)
-    impl.remove_label_entity(pos, node, "overstock:barrel_item_label")
+    impl.remove_label_entity(pos, node, "overstock:crate_item_label")
   end,
 })
 
 core.register_craft({
   type = "shaped",
-  output = "overstock:barrel 1",
+  output = "overstock:crate 1",
   recipe = {
     { "group:tree", "group:wood_slab", "group:tree" },
     { "group:tree", "mcl_chests:chest", "group:tree" },
@@ -51,7 +51,7 @@ core.register_craft({
   },
 })
 
-core.register_entity("overstock:barrel_item_label", {
+core.register_entity("overstock:crate_item_label", {
   initial_properties = {
     pointable = false,
     visual = "wielditem",
@@ -86,7 +86,7 @@ core.register_entity("overstock:barrel_item_label", {
   end,
 })
 
-core.register_entity("overstock:barrel_count_label", {
+core.register_entity("overstock:crate_count_label", {
   initial_properties = {
     pointable = false,
     visual = "upright_sprite",
@@ -95,17 +95,17 @@ core.register_entity("overstock:barrel_count_label", {
   },
 })
 
--- Spawn the barrel labels when the node loads, since they don't get
+-- Spawn the crate labels when the node loads, since they don't get
 -- persistently saved with the world.
 core.register_lbm({
-  name = "overstock:respawn_barrel_labels",
-  nodenames = { "overstock:barrel" },
+  name = "overstock:respawn_crate_labels",
+  nodenames = { "overstock:crate" },
   run_at_every_load = true,
   action = function(pos, node)
     local meta = core.get_meta(pos)
     local item_name = meta:get_string("overstock:item")
     if item_name and item_name ~= "" then
-      local existing = impl.find_label_entity(pos, node, "overstock:barrel_item_label")
+      local existing = impl.find_label_entity(pos, node, "overstock:crate_item_label")
       if not existing then
         impl.add_item_label_entity(pos, node, item_name)
       end
