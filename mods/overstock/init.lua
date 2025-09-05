@@ -31,6 +31,13 @@ local function find_label_entity(pos, node, entity_name)
   end
 end
 
+local function remove_label_entity(pos, node, entity_name)
+  local entity = find_label_entity(pos, node, entity_name)
+  if entity then
+    entity:remove()
+  end
+end
+
 local function add_item_label_entity(pos, node, item_name)
   local offset = label_offset(node)
   local obj = core.add_entity(vector.add(pos, offset), "overstock:barrel_item_label", item_name)
@@ -74,18 +81,14 @@ core.register_node("overstock:barrel", {
     local meta = core.get_meta(pos)
     local existing_item_name = meta:get_string("overstock:item")
 
-    if existing_item_name ~= item_name then
+    if existing_item_name ~= "" and existing_item_name ~= item_name then
       -- There is already an item of a different type in the barrel.
       return itemstack
     end
 
     meta:set_string("overstock:item", item_name)
 
-    local entity = find_label_entity(pos, node, "overstock:barrel_item_label")
-    if entity then
-      entity:remove()
-    end
-
+    remove_label_entity(pos, node, "overstock:barrel_item_label")
     add_item_label_entity(pos, node, item_name)
 
     local barrel_inventory = core.get_inventory({ type = "node", pos = pos })
@@ -95,39 +98,44 @@ core.register_node("overstock:barrel", {
     return itemstack
   end,
 
-  on_punch = function(pos, _, puncher, _)
+  on_punch = function(pos, node, puncher, _)
     local meta = core.get_meta(pos)
     local item_name = meta:get_string("overstock:item")
 
-    if item_name and item_name ~= "" then
-      local barrel_inventory = core.get_inventory({ type = "node", pos = pos })
+    if not item_name or item_name == "" then
+      return
+    end
 
-      local barrel_itemstack = ItemStack(item_name)
+    local barrel_inventory = core.get_inventory({ type = "node", pos = pos })
 
-      if not barrel_inventory:contains_item("main", barrel_itemstack) then
-        return
-      end
+    local barrel_itemstack = ItemStack(item_name)
 
-      barrel_itemstack:set_count(barrel_itemstack:get_stack_max() or 1)
+    if not barrel_inventory:contains_item("main", barrel_itemstack) then
+      return
+    end
 
-      local player_inventory = puncher:get_inventory()
-      local wielded_itemstack = player_inventory:get_stack("main", puncher:get_wield_index())
+    barrel_itemstack:set_count(barrel_itemstack:get_stack_max() or 1)
 
-      local taken_itemstack = barrel_inventory:remove_item("main", barrel_itemstack)
+    local player_inventory = puncher:get_inventory()
+    local wielded_itemstack = player_inventory:get_stack("main", puncher:get_wield_index())
 
-      if wielded_itemstack:is_empty() then
-        player_inventory:set_stack("main", puncher:get_wield_index(), taken_itemstack)
-      else
-        player_inventory:add_item("main", taken_itemstack)
-      end
+    local taken_itemstack = barrel_inventory:remove_item("main", barrel_itemstack)
+
+    if wielded_itemstack:is_empty() then
+      player_inventory:set_stack("main", puncher:get_wield_index(), taken_itemstack)
+    else
+      player_inventory:add_item("main", taken_itemstack)
+    end
+
+    if not barrel_inventory:contains_item("main", ItemStack(item_name)) then
+      -- We've taken the last item from the barrel, so remove the label.
+      meta:set_string("overstock:item", "")
+      remove_label_entity(pos, node, "overstock:barrel_item_label")
     end
   end,
 
   after_destruct = function(pos, node)
-    local entity = find_label_entity(pos, node, "overstock:barrel_item_label")
-    if entity then
-      entity:remove()
-    end
+    remove_label_entity(pos, node, "overstock:barrel_item_label")
   end,
 })
 
