@@ -1,6 +1,6 @@
 package.path = "../?.lua;" .. package.path
 
-local impl = require("impl")
+local mod = require("impl")
 
 describe("put stack", function()
   it("does nothing if the itemstack has no name", function()
@@ -10,9 +10,9 @@ describe("put stack", function()
       return ""
     end
 
-    local new_itemstack = impl.put_stack({ x = 0, y = 0, z = 0 }, {}, itemstack)
+    local new_itemstack = mod.put_stack({}, {}, itemstack)
 
-    assert.equals(new_itemstack, itemstack)
+    assert.equals(itemstack, new_itemstack)
   end)
 
   it("does nothing if a different item is already in the barrel", function()
@@ -32,32 +32,130 @@ describe("put stack", function()
       end,
     }
 
-    local new_itemstack = impl.put_stack({ x = 0, y = 0, z = 0 }, {}, itemstack)
+    local new_itemstack = mod.put_stack({}, {}, itemstack)
 
-    assert.equals(new_itemstack, itemstack)
+    assert.equals(itemstack, new_itemstack)
   end)
 
   it("stores the item name", function()
-    local itemstack = {}
+    local itemstack = {
+      clear = function() end,
+    }
+
+    local item_name = "test:item"
 
     function itemstack:get_name()
-      return "test:item"
+      return item_name
     end
 
     _G.core = {
       get_meta = function(_)
         return {
-          get_string = function(_)
-            return "test:item"
+          get_string = function(_, _)
+            return item_name
           end,
-          set_string = function(self, key, value)
+          set_string = function(_, key, value)
             assert.equals("overstock:item", key)
-            assert.equals("test:item", value)
+            assert.equals(item_name, value)
+          end,
+        }
+      end,
+      get_inventory = function(_)
+        return {
+          add_item = function(_, _) end,
+        }
+      end,
+    }
+
+    mod.remove_label_entity = function(_, _, _) end
+    mod.add_item_label_entity = function(_, _, _) end
+
+    mod.put_stack({}, {}, itemstack)
+  end)
+
+  it("replaces the item label", function()
+    local itemstack = {
+      clear = function() end,
+    }
+    local pos = {}
+    local node = {}
+    local item_name = "test:item"
+
+    function itemstack:get_name()
+      return item_name
+    end
+
+    _G.core = {
+      get_meta = function(_)
+        return {
+          get_string = function(_, _)
+            return item_name
+          end,
+          set_string = function(_, _, _) end,
+        }
+      end,
+      get_inventory = function(_)
+        return {
+          add_item = function(_, _) end,
+        }
+      end,
+    }
+
+    mod.remove_label_entity = function(this_pos, this_node, this_entity_name)
+      assert.equals(pos, this_pos)
+      assert.equals(node, this_node)
+      assert.equals("overstock:barrel_item_label", this_entity_name)
+    end
+
+    mod.add_item_label_entity = function(this_pos, this_node, this_item_name)
+      assert.equals(pos, this_pos)
+      assert.equals(node, this_node)
+      assert.equals(item_name, this_item_name)
+    end
+
+    mod.put_stack(pos, node, itemstack)
+  end)
+
+  it("moves the itemstack from the player's hand to the barrel's inventory", function()
+    local was_cleared = false
+
+    local itemstack = {
+      clear = function()
+        was_cleared = true
+      end,
+    }
+    local pos = {}
+    local node = {}
+    local item_name = "test:item"
+
+    function itemstack:get_name()
+      return item_name
+    end
+
+    _G.core = {
+      get_meta = function(_)
+        return {
+          get_string = function(_, _)
+            return ""
+          end,
+          set_string = function(_, _, _) end,
+        }
+      end,
+      get_inventory = function(_)
+        return {
+          add_item = function(_, inventory_name, added_itemstack)
+            assert.equals("main", inventory_name)
+            assert.equals(itemstack, added_itemstack)
           end,
         }
       end,
     }
 
-    impl.put_stack({ x = 0, y = 0, z = 0 }, {}, itemstack)
+    mod.remove_label_entity = function(_, _, _) end
+    mod.add_item_label_entity = function(_, _, _) end
+
+    mod.put_stack(pos, node, itemstack)
+
+    assert(was_cleared, "Expected itemstack to be cleared after being added to barrel inventory")
   end)
 end)
