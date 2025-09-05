@@ -31,7 +31,7 @@ end
 
 local function add_item_label_entity(pos, node, item_name)
   local offset = label_offset(node)
-  local obj = core.add_entity(vector.add(pos, offset), "overstock:barrel_item", item_name)
+  local obj = core.add_entity(vector.add(pos, offset), "overstock:barrel_item_label", item_name)
   if obj then
     obj:set_yaw(label_yaw(node))
   end
@@ -66,7 +66,7 @@ core.register_node("overstock:barrel", {
     local meta = core.get_meta(pos)
     meta:set_string("overstock:item", item_name)
 
-    local entity = find_label_entity(pos, node, "overstock:barrel_item")
+    local entity = find_label_entity(pos, node, "overstock:barrel_item_label")
     if entity then
       entity:remove()
     end
@@ -77,7 +77,7 @@ core.register_node("overstock:barrel", {
   end,
 
   after_destruct = function(pos, node)
-    local entity = find_label_entity(pos, node, "overstock:barrel_item")
+    local entity = find_label_entity(pos, node, "overstock:barrel_item_label")
     if entity then
       entity:remove()
     end
@@ -94,7 +94,7 @@ core.register_craft({
   },
 })
 
-core.register_entity("overstock:barrel_item", {
+core.register_entity("overstock:barrel_item_label", {
   initial_properties = {
     pointable = false,
     visual = "wielditem",
@@ -124,7 +124,7 @@ core.register_entity("overstock:barrel_item", {
   end,
 })
 
-core.register_entity("overstock:barrel_label", {
+core.register_entity("overstock:barrel_count_label", {
   initial_properties = {
     pointable = false,
     visual = "upright_sprite",
@@ -141,7 +141,7 @@ core.register_lbm({
     local meta = core.get_meta(pos)
     local item_name = meta:get_string("overstock:item")
     if item_name and item_name ~= "" then
-      local existing = find_label_entity(pos, node, "overstock:barrel_item")
+      local existing = find_label_entity(pos, node, "overstock:barrel_item_label")
       if not existing then
         add_item_label_entity(pos, node, item_name)
       end
