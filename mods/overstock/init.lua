@@ -21,7 +21,7 @@ core.register_node("overstock:barrel", {
   on_construct = function(pos)
     local meta = core.get_meta(pos)
     local inventory = meta:get_inventory()
-    inventory:set_size("main", impl.barrel_capacity_stacks)
+    inventory:set_size(impl.inventory_listname, impl.barrel_capacity_stacks)
   end,
 
   on_rightclick = function(pos, node, _, itemstack)
@@ -30,6 +30,10 @@ core.register_node("overstock:barrel", {
 
   on_punch = function(pos, node, puncher, _)
     impl.take_stack(pos, node, puncher)
+  end,
+
+  on_destruct = function(pos)
+    impl.drop_inventory(pos)
   end,
 
   after_destruct = function(pos, node)
