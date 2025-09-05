@@ -64,7 +64,7 @@ core.register_node("overstock:barrel", {
     end
 
     local meta = core.get_meta(pos)
-    meta:set_string("display_item", item_name)
+    meta:set_string("overstock:item", item_name)
 
     local entity = find_label_entity(pos, node, "overstock:barrel_item")
     if entity then
@@ -139,7 +139,7 @@ core.register_lbm({
   run_at_every_load = true,
   action = function(pos, node)
     local meta = core.get_meta(pos)
-    local item_name = meta:get_string("display_item")
+    local item_name = meta:get_string("overstock:item")
     if item_name and item_name ~= "" then
       local existing = find_label_entity(pos, node, "overstock:barrel_item")
       if not existing then
