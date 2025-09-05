@@ -37,6 +37,8 @@ local function add_item_label_entity(pos, node, item_name)
   end
 end
 
+local base_label_size = { x = 0.25, y = 0.25 }
+
 core.register_node("overstock:barrel", {
   description = "Barrel",
   tiles = {
@@ -48,11 +50,11 @@ core.register_node("overstock:barrel", {
     "overstock_barrel_front.png",
   },
   paramtype2 = "4dir",
+  _mcl_hardness = 2,
   groups = {
     handy = 1,
     axey = 1,
     material_wood = 1,
-    flammable = -1,
     container = 2,
   },
   on_rightclick = function(pos, node, _, itemstack)
@@ -99,7 +101,6 @@ core.register_entity("overstock:barrel_item", {
     physical = false,
     collide_with_objects = false,
     static_save = false,
-    visual_size = { x = 0.25, y = 0.25 },
   },
 
   on_activate = function(self, static_data)
@@ -109,7 +110,16 @@ core.register_entity("overstock:barrel_item", {
 
     local item_name = static_data
     if item_name then
-      self.object:set_properties({ wield_item = item_name })
+      local itemstack = ItemStack(item_name)
+      local item_def = itemstack:get_definition()
+      local wield_scale = item_def.wield_scale
+      self.object:set_properties({
+        wield_item = item_name,
+        visual_size = {
+          x = base_label_size.x / wield_scale.x,
+          y = base_label_size.y / wield_scale.y,
+        },
+      })
     end
   end,
 })
