@@ -49,8 +49,11 @@ core.register_node("overstock:barrel", {
   },
   paramtype2 = "4dir",
   groups = {
+    handy = 1,
     axey = 1,
     material_wood = 1,
+    flammable = -1,
+    container = 2,
   },
   on_rightclick = function(pos, node, _, itemstack)
     local item_name = itemstack:get_name()
