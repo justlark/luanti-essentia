@@ -1,26 +1,30 @@
-impl = {}
+local impl = {}
 
-local label_faces = {
-  -- +Z
-  [0] = { offset = vector.new(0, 0.0, -0.5), yaw = 0 },
-  -- -X
-  [1] = { offset = vector.new(-0.5, 0.0, 0), yaw = -math.pi / 2 },
-  -- -Z
-  [2] = { offset = vector.new(0, 0.0, 0.5), yaw = math.pi },
-  -- +X
-  [3] = { offset = vector.new(0.5, 0.0, 0), yaw = math.pi / 2 },
-}
+local function label_face(face)
+  local faces = {
+    -- +Z
+    [0] = { offset = vector.new(0, 0.0, -0.5), yaw = 0 },
+    -- -X
+    [1] = { offset = vector.new(-0.5, 0.0, 0), yaw = -math.pi / 2 },
+    -- -Z
+    [2] = { offset = vector.new(0, 0.0, 0.5), yaw = math.pi },
+    -- +X
+    [3] = { offset = vector.new(0.5, 0.0, 0), yaw = math.pi / 2 },
+  }
+
+  return faces[face]
+end
 
 impl.barrel_capacity_stacks = 64
 
 function impl.label_offset(node)
   local facedir = node.param2 % 4
-  return label_faces[facedir].offset
+  return label_face(facedir).offset
 end
 
 function impl.label_yaw(node)
   local facedir = node.param2 % 4
-  return label_faces[facedir].yaw
+  return label_face(facedir).yaw
 end
 
 function impl.find_label_entity(pos, node, entity_name)
