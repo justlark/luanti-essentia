@@ -46,7 +46,7 @@ core.register_craft({
   output = "overstock:crate 1",
   recipe = {
     { "group:tree", "group:wood_slab", "group:tree" },
-    { "group:tree", "mcl_chests:chest", "group:tree" },
+    { "mcl_core:iron_ingot", "mcl_chests:chest", "mcl_core:iron_ingot" },
     { "group:tree", "group:tree", "group:tree" },
   },
 })
