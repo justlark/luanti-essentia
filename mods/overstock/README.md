@@ -1,6 +1,7 @@
 # Overstock
 
-Crates for storing large quantities of a single item.
+Crates for storing large quantities of a single item. Inspired by barrels from
+the Minecraft mod Factorization and later implementations like JABBA.
 
 ## License
 
