@@ -1,5 +1,10 @@
 local impl = dofile(core.get_modpath("overstock") .. "/impl.lua")
 
+local DOUBLE_CLICK_THRESHOLD_US = 300000 -- 300ms
+
+-- The item name and click time indexed by player name.
+local last_crate_rightclick = {}
+
 core.register_node("overstock:crate", {
   description = "Storage Crate",
   tiles = {
@@ -24,8 +29,25 @@ core.register_node("overstock:crate", {
     inventory:set_size(impl.INVENTORY_LISTNAME, impl.CRATE_CAPACITY_STACKS)
   end,
 
-  on_rightclick = function(pos, node, player, itemstack)
-    impl.put_items(pos, node, itemstack, player, impl.PutQuantity.STACK)
+  on_rightclick = function(pos, node, player, itemstack, _)
+    local player_name = player:get_player_name()
+    local now = core.get_us_time()
+    local last = last_crate_rightclick[player_name] or {
+      time = 0,
+      item = "",
+    }
+
+    -- Treat a delay of < 300ms as a double right-click.
+    if now - last.time < DOUBLE_CLICK_THRESHOLD_US then
+      -- Double right click.
+      impl.put_items(pos, node, ItemStack(last.item), player, impl.PutQuantity.ALL)
+      last_crate_rightclick[player_name] = { time = 0, item = "" }
+    else
+      -- Single right click.
+      local item_name = itemstack:get_name()
+      impl.put_items(pos, node, itemstack, player, impl.PutQuantity.STACK)
+      last_crate_rightclick[player_name] = { time = now, item = item_name }
+    end
   end,
 
   on_punch = function(pos, node, puncher, _)
