@@ -29,7 +29,13 @@ core.register_node("overstock:crate", {
   end,
 
   on_punch = function(pos, node, puncher, _)
-    impl.take_stack(pos, node, puncher)
+    local controls = puncher:get_player_control()
+
+    if controls.sneak then
+      impl.take_items(pos, node, puncher, impl.TakeQuantity.ITEM)
+    else
+      impl.take_items(pos, node, puncher, impl.TakeQuantity.STACK)
+    end
   end,
 
   on_destruct = function(pos)

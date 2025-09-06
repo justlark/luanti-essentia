@@ -255,7 +255,12 @@ function impl.spawn_label(pos, node)
   end
 end
 
-function impl.take_stack(pos, node, puncher)
+impl.TakeQuantity = {
+  STACK = "stack",
+  ITEM = "item",
+}
+
+function impl.take_items(pos, node, puncher, quantity)
   local meta = core.get_meta(pos)
   local item_name = meta:get_string("overstock:item")
 
@@ -273,7 +278,13 @@ function impl.take_stack(pos, node, puncher)
   end
 
   -- Get a full stack, or as much as it contains.
-  crate_itemstack:set_count(crate_itemstack:get_stack_max() or 1)
+  if quantity == impl.TakeQuantity.ITEM then
+    crate_itemstack:set_count(1)
+  elseif quantity == impl.TakeQuantity.STACK then
+    crate_itemstack:set_count(crate_itemstack:get_stack_max())
+  else
+    crate_itemstack:set_count(0)
+  end
 
   local player_inventory = puncher:get_inventory()
   local wielded_itemstack = player_inventory:get_stack(impl.INVENTORY_LISTNAME, puncher:get_wield_index())
