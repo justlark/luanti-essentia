@@ -5,6 +5,24 @@ A collection of mods for
 Minecraft-inspired open-source survival sandbox game built on the
 [Luanti](https://www.luanti.org/) engine.
 
+Leaning away from the power creep of popular Minecraft mods, this pack aims to
+be balanced against the base game.
+
+## Mods
+
+### Overstock
+
+**Store large quantities of a single item.**
+
+This block holds up to 64 stacks of a single item. Rather than open an
+inventory screen, you right or left click on the block to put items in or take
+items out.
+
+- Right-click to add a stack.
+- Double right-click to add all the blocks in your inventory of that type.
+- Punch to take a stack.
+- Sneak-punch to take a single item.
+
 ## Copyright
 
 Copyright © 2025 Lark Aster
