@@ -110,16 +110,13 @@ local function int_to_chars(int)
   return array
 end
 
-function impl.generate_count_texture(count)
-  local items = count.items
-  local stack_size = count.stack_size
-
-  if not items or not stack_size then
+local function generate_count_texture(item_count, stack_size)
+  if not item_count or not stack_size then
     return
   end
 
-  local stacks = math.floor(items / stack_size)
-  local remainder = items % stack_size
+  local stacks = math.floor(item_count / stack_size)
+  local remainder = item_count % stack_size
 
   local chars = {}
 
@@ -165,10 +162,6 @@ local function find_count_label_entity(pos, node)
   return find_label_entity(pos, count_label_offset(node), "overstock:crate_count_label")
 end
 
-function impl.label_exists(pos, node)
-  return find_item_label_entity(pos, node) ~= nil or find_count_label_entity(pos, node) ~= nil
-end
-
 function impl.destroy_label(pos, node)
   local item_label = find_item_label_entity(pos, node)
   if item_label then
@@ -181,7 +174,26 @@ function impl.destroy_label(pos, node)
   end
 end
 
-function impl.add_item_label_entity(pos, node, item_name)
+local function get_total_item_count(inventory)
+  local total = 0
+  local size = inventory:get_size(impl.INVENTORY_LISTNAME)
+
+  for i = 1, size do
+    local stack = inventory:get_stack(impl.INVENTORY_LISTNAME, i)
+    total = total + stack:get_count()
+  end
+
+  return total
+end
+
+local function add_item_label_entity(pos, node)
+  local meta = core.get_meta(pos)
+  local item_name = meta:get_string("overstock:item")
+
+  if not item_name or item_name == "" then
+    return
+  end
+
   local offset = item_label_offset(node)
   local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_item_label", item_name)
   if obj then
@@ -189,11 +201,33 @@ function impl.add_item_label_entity(pos, node, item_name)
   end
 end
 
-function impl.add_count_label_entity(pos, node, count)
+local function add_count_label_entity(pos, node)
   local offset = count_label_offset(node)
-  local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_count_label", count)
+  local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_count_label")
+
   if obj then
+    local crate_inventory = core.get_inventory({ type = "node", pos = pos })
+    local meta = core.get_meta(pos)
+    local itemstack = ItemStack(meta:get_string("overstock:item"))
+    local item_count = get_total_item_count(crate_inventory)
+    local stack_size = itemstack:get_stack_max()
+
+    local texture = generate_count_texture(item_count, stack_size)
+
     obj:set_yaw(label_yaw(node))
+    obj:set_properties({
+      textures = { texture },
+    })
+  end
+end
+
+function impl.spawn_label(pos, node)
+  if not find_item_label_entity(pos, node) then
+    add_item_label_entity(pos, node)
+  end
+
+  if not find_count_label_entity(pos, node) then
+    add_count_label_entity(pos, node)
   end
 end
 
@@ -254,9 +288,8 @@ function impl.put_stack(pos, node, itemstack)
   meta:set_string("overstock:item", item_name)
 
   impl.destroy_label(pos, node)
-  impl.add_item_label_entity(pos, node, item_name)
-  -- TODO: Implement
-  impl.add_count_label_entity(pos, node, 0)
+  add_item_label_entity(pos, node)
+  add_count_label_entity(pos, node)
 
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
   local remaining_items = crate_inventory:add_item(impl.INVENTORY_LISTNAME, itemstack)

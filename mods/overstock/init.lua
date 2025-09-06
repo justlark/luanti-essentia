@@ -98,16 +98,6 @@ core.register_entity("overstock:crate_count_label", {
       y = impl.BASE_COUNT_LABEL_SIZE.y,
     },
   },
-
-  on_activate = function(self, static_data)
-    local texture = impl.generate_count_texture({ items = 4095, stack_size = 64 })
-
-    if texture then
-      self.object:set_properties({
-        textures = { texture },
-      })
-    end
-  end,
 })
 
 -- Spawn the crate labels when the node loads, since they don't get
@@ -117,14 +107,6 @@ core.register_lbm({
   nodenames = { "overstock:crate" },
   run_at_every_load = true,
   action = function(pos, node)
-    local meta = core.get_meta(pos)
-    local item_name = meta:get_string("overstock:item")
-    if item_name and item_name ~= "" then
-      if not impl.label_exists(pos, node) then
-        impl.add_item_label_entity(pos, node, item_name)
-        -- TODO: Implement
-        impl.add_count_label_entity(pos, node, 0)
-      end
-    end
+    impl.spawn_label(pos, node)
   end,
 })
