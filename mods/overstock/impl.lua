@@ -120,24 +120,30 @@ local function generate_count_texture(item_count, stack_size)
 
   local chars = {}
 
-  for _, char in ipairs(int_to_chars(stacks)) do
-    table.insert(chars, char)
-  end
-
-  table.insert(chars, " ")
-  table.insert(chars, "times")
-  table.insert(chars, " ")
-
-  for _, char in ipairs(int_to_chars(stack_size)) do
-    table.insert(chars, char)
-  end
-
-  if remainder > 0 then
-    table.insert(chars, " ")
-    table.insert(chars, "plus")
-    table.insert(chars, " ")
+  if stacks == 0 then
     for _, char in ipairs(int_to_chars(remainder)) do
       table.insert(chars, char)
+    end
+  else
+    for _, char in ipairs(int_to_chars(stacks)) do
+      table.insert(chars, char)
+    end
+
+    table.insert(chars, " ")
+    table.insert(chars, "times")
+    table.insert(chars, " ")
+
+    for _, char in ipairs(int_to_chars(stack_size)) do
+      table.insert(chars, char)
+    end
+
+    if remainder > 0 then
+      table.insert(chars, " ")
+      table.insert(chars, "plus")
+      table.insert(chars, " ")
+      for _, char in ipairs(int_to_chars(remainder)) do
+        table.insert(chars, char)
+      end
     end
   end
 
@@ -298,16 +304,16 @@ function impl.put_stack(pos, node, itemstack)
 
   meta:set_string("overstock:item", item_name)
 
-  impl.destroy_label(pos, node)
-  add_item_label_entity(pos, node)
-  add_count_label_entity(pos, node)
-
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
   local remaining_items = crate_inventory:add_item(impl.INVENTORY_LISTNAME, itemstack)
 
   if remaining_items and remaining_items:is_empty() then
     itemstack:clear()
   end
+
+  impl.destroy_label(pos, node)
+  add_item_label_entity(pos, node)
+  add_count_label_entity(pos, node)
 
   return itemstack
 end
