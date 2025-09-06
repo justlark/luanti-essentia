@@ -17,6 +17,9 @@ core.register_node("overstock:crate", {
   },
   paramtype2 = "4dir",
   _mcl_hardness = 2,
+  _doc_items_longdesc = "Store large quantities of a single item.",
+  _doc_items_usagehelp =
+  "Right-click to add a stack. Double right-click to add all. Punch to take a stack. Sneak-punch to take a single item.",
   sounds = mcl_sounds.node_sound_wood_defaults(),
   groups = {
     handy = 1,
