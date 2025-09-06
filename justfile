@@ -15,5 +15,5 @@ optimize-textures:
 # copy a mod into the Luanti flatpak's mods directory
 install-flatpak mod:
   mkdir --parents {{ flatpak_mods_dir }}
-  rm --recursive {{ flatpak_mods_dir }}/{{ mod }}
+  rm --recursive --force {{ flatpak_mods_dir }}/{{ mod }}
   cp --recursive ./mods/{{ mod }} {{ flatpak_mods_dir }}/{{ mod }}
