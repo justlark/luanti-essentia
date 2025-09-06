@@ -354,7 +354,9 @@ function impl.put_items(pos, node, itemstack, player, quantity)
           player_inventory:remove_item(impl.INVENTORY_LISTNAME, stack)
         else
           -- The crate filled up, so we weren't able to add the entire stack.
-          player_inventory:remove_item(impl.INVENTORY_LISTNAME, stack:get_count() - remaining_items:get_count())
+          local itemstack_to_remove = ItemStack(item_name)
+          itemstack_to_remove:set_count(stack:get_count() - remaining_items:get_count() + 1)
+          player_inventory:remove_item(impl.INVENTORY_LISTNAME, itemstack_to_remove)
         end
       end
     end
