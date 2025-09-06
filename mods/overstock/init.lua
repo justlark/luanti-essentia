@@ -37,7 +37,7 @@ core.register_node("overstock:crate", {
   end,
 
   after_destruct = function(pos, node)
-    impl.remove_label_entity(pos, node, "overstock:crate_item_label")
+    impl.destroy_label(pos, node)
   end,
 })
 
@@ -114,9 +114,10 @@ core.register_lbm({
     local meta = core.get_meta(pos)
     local item_name = meta:get_string("overstock:item")
     if item_name and item_name ~= "" then
-      local existing = impl.find_label_entity(pos, node, "overstock:crate_item_label")
-      if not existing then
+      if not impl.label_exists(pos, node) then
         impl.add_item_label_entity(pos, node, item_name)
+        -- TODO: Implement
+        impl.add_count_label_entity(pos, node, 0)
       end
     end
   end,

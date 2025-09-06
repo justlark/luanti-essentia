@@ -9,26 +9,48 @@ local CHAR_SIZE = { x = 5, y = 12 }
 local function label_face(face)
   local faces = {
     -- +Z
-    [0] = { offset = vector.new(0, 0.0, -0.5), yaw = 0 },
+    [0] = {
+      item_offset = vector.new(0, 0.0, -0.5),
+      count_offset = vector.new(0, 0.3, -0.501),
+      yaw = 0,
+    },
     -- -X
-    [1] = { offset = vector.new(-0.5, 0.0, 0), yaw = -math.pi / 2 },
+    [1] = {
+      item_offset = vector.new(-0.5, 0.0, 0),
+      count_offset = vector.new(-0.501, 0.3, 0),
+      yaw = -math.pi / 2,
+    },
     -- -Z
-    [2] = { offset = vector.new(0, 0.0, 0.5), yaw = math.pi },
+    [2] = {
+      item_offset = vector.new(0, 0.0, 0.5),
+      count_offset = vector.new(0, 0.3, 0.501),
+      yaw = math.pi,
+    },
     -- +X
-    [3] = { offset = vector.new(0.5, 0.0, 0), yaw = math.pi / 2 },
+    [3] = {
+      item_offset = vector.new(0.5, 0.0, 0),
+      count_offset = vector.new(0.501, 0.3, 0),
+      yaw = math.pi / 2,
+    },
   }
 
   return faces[face]
 end
 
-function label_offset(node)
-  local facedir = node.param2 % 4
-  return label_face(facedir).offset
+local function face_dir(node)
+  return node.param2 % 4
 end
 
-function label_yaw(node)
-  local facedir = node.param2 % 4
-  return label_face(facedir).yaw
+local function item_label_offset(node)
+  return label_face(face_dir(node)).item_offset
+end
+
+local function count_label_offset(node)
+  return label_face(face_dir(node)).count_offset
+end
+
+local function label_yaw(node)
+  return label_face(face_dir(node)).yaw
 end
 
 local function char_texture(char)
@@ -54,8 +76,8 @@ function impl.generate_count_texture(count)
   return generate_number_texture("123")
 end
 
-function impl.find_label_entity(pos, node, entity_name)
-  local target = vector.add(pos, label_offset(node))
+local function find_label_entity(pos, node, entity_name)
+  local target = vector.add(pos, item_label_offset(node))
   for _, obj in pairs(core.get_objects_inside_radius(target, 0.1)) do
     local entity = obj:get_luaentity()
     if entity and entity.name == entity_name then
@@ -64,16 +86,34 @@ function impl.find_label_entity(pos, node, entity_name)
   end
 end
 
-function impl.remove_label_entity(pos, node, entity_name)
-  local entity = impl.find_label_entity(pos, node, entity_name)
+function impl.label_exists(pos, node)
+  return find_label_entity(pos, node, "overstock:crate_item_label") ~= nil
+      or find_label_entity(pos, node, "overstock:crate_count_label") ~= nil
+end
+
+local function remove_label_entity(pos, node, entity_name)
+  local entity = find_label_entity(pos, node, entity_name)
   if entity then
     entity:remove()
   end
 end
 
+function impl.destroy_label(pos, node)
+  remove_label_entity(pos, node, "overstock:crate_item_label")
+  remove_label_entity(pos, node, "overstock:crate_count_label")
+end
+
 function impl.add_item_label_entity(pos, node, item_name)
-  local offset = label_offset(node)
+  local offset = item_label_offset(node)
   local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_item_label", item_name)
+  if obj then
+    obj:set_yaw(label_yaw(node))
+  end
+end
+
+function impl.add_count_label_entity(pos, node, count)
+  local offset = item_label_offset(node)
+  local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_count_label", count)
   if obj then
     obj:set_yaw(label_yaw(node))
   end
@@ -115,7 +155,7 @@ function impl.take_stack(pos, node, puncher)
   if not crate_inventory:contains_item(impl.INVENTORY_LISTNAME, ItemStack(item_name)) then
     -- We've taken the last item from the crate, so remove the label.
     meta:set_string("overstock:item", "")
-    impl.remove_label_entity(pos, node, "overstock:crate_item_label")
+    impl.destroy_label(pos, node)
   end
 end
 
@@ -135,8 +175,10 @@ function impl.put_stack(pos, node, itemstack)
 
   meta:set_string("overstock:item", item_name)
 
-  impl.remove_label_entity(pos, node, "overstock:crate_item_label")
+  impl.destroy_label(pos, node)
   impl.add_item_label_entity(pos, node, item_name)
+  -- TODO: Implement
+  impl.add_count_label_entity(pos, node, 0)
 
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
   local remaining_items = crate_inventory:add_item(impl.INVENTORY_LISTNAME, itemstack)
