@@ -206,6 +206,29 @@ local function get_total_item_count(inventory)
   return total
 end
 
+local function get_free_space_for_item(inventory, item_name)
+  if not inventory then
+    return 0
+  end
+
+  local stack = ItemStack(item_name)
+  local stack_max = stack:get_stack_max()
+  local free = 0
+
+  local list = inventory:get_list("main") or {}
+  for _, slot in ipairs(list) do
+    if slot:is_empty() then
+      -- The full stack size is available.
+      free = free + stack_max
+    elseif slot:get_name() == item_name then
+      -- Count the remaining space in this stack.
+      free = free + (stack_max - slot:get_count())
+    end
+  end
+
+  return free
+end
+
 local function add_item_label_entity(pos, node)
   local meta = core.get_meta(pos)
   local item_name = meta:get_string("overstock:item")
@@ -277,16 +300,30 @@ function impl.take_items(pos, node, puncher, quantity)
     return
   end
 
-  -- Get a full stack, or as much as it contains.
+  local requested_take_quantity
+
   if quantity == impl.TakeQuantity.ITEM then
-    crate_itemstack:set_count(1)
+    requested_take_quantity = 1
   elseif quantity == impl.TakeQuantity.STACK then
-    crate_itemstack:set_count(crate_itemstack:get_stack_max())
+    requested_take_quantity = crate_itemstack:get_stack_max()
   else
-    crate_itemstack:set_count(0)
+    requested_take_quantity = 0
   end
 
   local player_inventory = puncher:get_inventory()
+  local free_space_for_item = get_free_space_for_item(player_inventory, item_name)
+
+  -- Account for the fact that the player may not have enough space in their
+  -- inventory to take a full stack or even a single item.
+  local actual_take_quantity = math.min(requested_take_quantity, free_space_for_item)
+
+  if actual_take_quantity == 0 then
+    -- The player has no space in their inventory. No sense continuing.
+    return
+  end
+
+  crate_itemstack:set_count(actual_take_quantity)
+
   local wielded_itemstack = player_inventory:get_stack(impl.INVENTORY_LISTNAME, puncher:get_wield_index())
   local taken_itemstack = crate_inventory:remove_item(impl.INVENTORY_LISTNAME, crate_itemstack)
 
