@@ -380,19 +380,20 @@ function impl.put_items(pos, node, itemstack, player, quantity)
   meta:set_string("overstock:item", item_name)
 
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
-  local remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, itemstack)
 
-  if remaining_items and remaining_items:is_empty() then
-    itemstack:clear()
-  end
+  if quantity == impl.PutQuantity.STACK then
+    local remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, itemstack)
 
-  if quantity == impl.PutQuantity.ALL then
+    if remaining_items and remaining_items:is_empty() then
+      itemstack:clear()
+    end
+  elseif quantity == impl.PutQuantity.ALL then
     local player_inventory = player:get_inventory()
     local itemstacks = player_inventory:get_list("main")
 
     for _, stack in ipairs(itemstacks) do
       if stack:get_name() == item_name then
-        remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, stack)
+        local remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, stack)
 
         if remaining_items and remaining_items:is_empty() then
           player_inventory:remove_item("main", stack)
