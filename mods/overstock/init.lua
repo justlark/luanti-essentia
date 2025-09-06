@@ -24,8 +24,8 @@ core.register_node("overstock:crate", {
     inventory:set_size(impl.INVENTORY_LISTNAME, impl.CRATE_CAPACITY_STACKS)
   end,
 
-  on_rightclick = function(pos, node, _, itemstack)
-    impl.put_stack(pos, node, itemstack)
+  on_rightclick = function(pos, node, player, itemstack)
+    impl.put_items(pos, node, itemstack, player, impl.PutQuantity.STACK)
   end,
 
   on_punch = function(pos, node, puncher, _)

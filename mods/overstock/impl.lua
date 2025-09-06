@@ -310,7 +310,16 @@ function impl.take_items(pos, node, puncher, quantity)
   end
 end
 
-function impl.put_stack(pos, node, itemstack)
+impl.PutQuantity = {
+  STACK = "stack",
+  ALL = "all",
+}
+
+function impl.put_items(pos, node, itemstack, player, quantity)
+  if quantity ~= impl.PutQuantity.STACK and quantity ~= impl.PutQuantity.ALL then
+    return itemstack
+  end
+
   local item_name = itemstack:get_name()
   if item_name == "" then
     return itemstack
@@ -331,6 +340,24 @@ function impl.put_stack(pos, node, itemstack)
 
   if remaining_items and remaining_items:is_empty() then
     itemstack:clear()
+  end
+
+  if quantity == impl.PutQuantity.ALL then
+    local player_inventory = player:get_inventory()
+    local itemstacks = player_inventory:get_list(impl.INVENTORY_LISTNAME)
+
+    for _, stack in ipairs(itemstacks) do
+      if stack:get_name() == item_name then
+        remaining_items = crate_inventory:add_item(impl.INVENTORY_LISTNAME, stack)
+
+        if remaining_items and remaining_items:is_empty() then
+          player_inventory:remove_item(impl.INVENTORY_LISTNAME, stack)
+        else
+          -- The crate filled up, so we weren't able to add the entire stack.
+          player_inventory:remove_item(impl.INVENTORY_LISTNAME, stack:get_count() - remaining_items:get_count())
+        end
+      end
+    end
   end
 
   impl.destroy_label(pos, node)
