@@ -162,16 +162,23 @@ local function find_count_label_entity(pos, node)
   return find_label_entity(pos, count_label_offset(node), "overstock:crate_count_label")
 end
 
-function impl.destroy_label(pos, node)
-  local item_label = find_item_label_entity(pos, node)
-  if item_label then
-    item_label:remove()
+local function destroy_item_label(pos, node)
+  local entity = find_item_label_entity(pos, node)
+  if entity then
+    entity:remove()
   end
+end
 
-  local count_label = find_count_label_entity(pos, node)
-  if count_label then
-    count_label:remove()
+local function destroy_count_label(pos, node)
+  local entity = find_count_label_entity(pos, node)
+  if entity then
+    entity:remove()
   end
+end
+
+function impl.destroy_label(pos, node)
+  destroy_item_label(pos, node)
+  destroy_count_label(pos, node)
 end
 
 local function get_total_item_count(inventory)
@@ -263,6 +270,10 @@ function impl.take_stack(pos, node, puncher)
   else
     player_inventory:add_item(impl.INVENTORY_LISTNAME, taken_itemstack)
   end
+
+  -- Refresh the item count on the label.
+  destroy_count_label(pos, node)
+  add_count_label_entity(pos, node)
 
   if not crate_inventory:contains_item(impl.INVENTORY_LISTNAME, ItemStack(item_name)) then
     -- We've taken the last item from the crate, so remove the label.
