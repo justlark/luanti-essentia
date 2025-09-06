@@ -3,7 +3,7 @@ local impl = {}
 impl.INVENTORY_LISTNAME = "main"
 impl.CRATE_CAPACITY_STACKS = 64
 impl.BASE_ITEM_LABEL_SIZE = { x = 0.25, y = 0.25 }
-impl.BASE_COUNT_LABEL_SIZE = { x = 0.15, y = 0.15 }
+impl.BASE_COUNT_LABEL_SIZE = { x = 0.5, y = 0.15 }
 
 local COUNT_LABEL_COLOR = "#000000"
 local COUNT_LABEL_OPACITY = "255"
@@ -13,26 +13,26 @@ local function label_face(face)
   local faces = {
     -- +Z
     [0] = {
-      item_offset = vector.new(0, 0.0, -0.5),
-      count_offset = vector.new(0, -0.35, -0.51),
+      item_offset = vector.new(0, -0.125, -0.5),
+      count_offset = vector.new(0, 0.2, -0.51),
       yaw = 0,
     },
     -- -X
     [1] = {
-      item_offset = vector.new(-0.5, 0.0, 0),
-      count_offset = vector.new(-0.51, -0.35, 0),
+      item_offset = vector.new(-0.5, -0.125, 0),
+      count_offset = vector.new(-0.51, 0.2, 0),
       yaw = -math.pi / 2,
     },
     -- -Z
     [2] = {
-      item_offset = vector.new(0, 0.0, 0.5),
-      count_offset = vector.new(0, -0.35, 0.51),
+      item_offset = vector.new(0, -0.125, 0.5),
+      count_offset = vector.new(0, 0.2, 0.51),
       yaw = math.pi,
     },
     -- +X
     [3] = {
-      item_offset = vector.new(0.5, 0.0, 0),
-      count_offset = vector.new(0.51, -0.35, 0),
+      item_offset = vector.new(0.5, -0.125, 0),
+      count_offset = vector.new(0.51, 0.2, 0),
       yaw = math.pi / 2,
     },
   }
