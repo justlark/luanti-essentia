@@ -78,8 +78,8 @@ core.register_entity("overstock:crate_item_label", {
       self.object:set_properties({
         wield_item = item_name,
         visual_size = {
-          x = impl.BASE_LABEL_SIZE.x / wield_scale.x,
-          y = impl.BASE_LABEL_SIZE.y / wield_scale.y,
+          x = impl.BASE_ITEM_LABEL_SIZE.x / wield_scale.x,
+          y = impl.BASE_ITEM_LABEL_SIZE.y / wield_scale.y,
         },
       })
     end
@@ -93,6 +93,10 @@ core.register_entity("overstock:crate_count_label", {
     physical = false,
     collide_with_objects = false,
     static_save = false,
+    visual_size = {
+      x = impl.BASE_COUNT_LABEL_SIZE.x,
+      y = impl.BASE_COUNT_LABEL_SIZE.y,
+    },
   },
 
   on_activate = function(self, static_data)

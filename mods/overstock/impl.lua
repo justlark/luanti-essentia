@@ -2,8 +2,11 @@ local impl = {}
 
 impl.INVENTORY_LISTNAME = "main"
 impl.CRATE_CAPACITY_STACKS = 64
-impl.BASE_LABEL_SIZE = { x = 0.25, y = 0.25 }
+impl.BASE_ITEM_LABEL_SIZE = { x = 0.25, y = 0.25 }
+impl.BASE_COUNT_LABEL_SIZE = { x = 0.15, y = 0.15 }
 
+local COUNT_LABEL_COLOR = "#000000"
+local COUNT_LABEL_OPACITY = "255"
 local CHAR_SIZE = { x = 5, y = 12 }
 
 local function label_face(face)
@@ -11,25 +14,25 @@ local function label_face(face)
     -- +Z
     [0] = {
       item_offset = vector.new(0, 0.0, -0.5),
-      count_offset = vector.new(0, 0.3, -0.501),
+      count_offset = vector.new(0, -0.35, -0.51),
       yaw = 0,
     },
     -- -X
     [1] = {
       item_offset = vector.new(-0.5, 0.0, 0),
-      count_offset = vector.new(-0.501, 0.3, 0),
+      count_offset = vector.new(-0.51, -0.35, 0),
       yaw = -math.pi / 2,
     },
     -- -Z
     [2] = {
       item_offset = vector.new(0, 0.0, 0.5),
-      count_offset = vector.new(0, 0.3, 0.501),
+      count_offset = vector.new(0, -0.35, 0.51),
       yaw = math.pi,
     },
     -- +X
     [3] = {
       item_offset = vector.new(0.5, 0.0, 0),
-      count_offset = vector.new(0.501, 0.3, 0),
+      count_offset = vector.new(0.51, -0.35, 0),
       yaw = math.pi / 2,
     },
   }
@@ -68,7 +71,10 @@ local function generate_number_texture(digits)
   end
 
   local total_w = #digits * CHAR_SIZE.x
-  return string.format("[combine:%dx%d:%s", total_w, CHAR_SIZE.y, table.concat(parts, ":"))
+  local texture = string.format("[combine:%dx%d:%s", total_w, CHAR_SIZE.y, table.concat(parts, ":"))
+  texture = texture .. string.format("^[colorize:%s:%s", COUNT_LABEL_COLOR, COUNT_LABEL_OPACITY)
+
+  return texture
 end
 
 function impl.generate_count_texture(count)
@@ -76,8 +82,8 @@ function impl.generate_count_texture(count)
   return generate_number_texture("123")
 end
 
-local function find_label_entity(pos, node, entity_name)
-  local target = vector.add(pos, item_label_offset(node))
+local function find_label_entity(pos, offset, entity_name)
+  local target = vector.add(pos, offset)
   for _, obj in pairs(core.get_objects_inside_radius(target, 0.1)) do
     local entity = obj:get_luaentity()
     if entity and entity.name == entity_name then
@@ -86,21 +92,28 @@ local function find_label_entity(pos, node, entity_name)
   end
 end
 
-function impl.label_exists(pos, node)
-  return find_label_entity(pos, node, "overstock:crate_item_label") ~= nil
-      or find_label_entity(pos, node, "overstock:crate_count_label") ~= nil
+local function find_item_label_entity(pos, node)
+  return find_label_entity(pos, item_label_offset(node), "overstock:crate_item_label")
 end
 
-local function remove_label_entity(pos, node, entity_name)
-  local entity = find_label_entity(pos, node, entity_name)
-  if entity then
-    entity:remove()
-  end
+local function find_count_label_entity(pos, node)
+  return find_label_entity(pos, count_label_offset(node), "overstock:crate_count_label")
+end
+
+function impl.label_exists(pos, node)
+  return find_item_label_entity(pos, node) ~= nil or find_count_label_entity(pos, node) ~= nil
 end
 
 function impl.destroy_label(pos, node)
-  remove_label_entity(pos, node, "overstock:crate_item_label")
-  remove_label_entity(pos, node, "overstock:crate_count_label")
+  local item_label = find_item_label_entity(pos, node)
+  if item_label then
+    item_label:remove()
+  end
+
+  local count_label = find_count_label_entity(pos, node)
+  if count_label then
+    count_label:remove()
+  end
 end
 
 function impl.add_item_label_entity(pos, node, item_name)
@@ -112,7 +125,7 @@ function impl.add_item_label_entity(pos, node, item_name)
 end
 
 function impl.add_count_label_entity(pos, node, count)
-  local offset = item_label_offset(node)
+  local offset = count_label_offset(node)
   local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_count_label", count)
   if obj then
     obj:set_yaw(label_yaw(node))
