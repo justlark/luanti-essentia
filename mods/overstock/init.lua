@@ -100,11 +100,13 @@ core.register_entity("overstock:crate_count_label", {
   },
 
   on_activate = function(self, static_data)
-    local texture = impl.generate_count_texture()
+    local texture = impl.generate_count_texture({ items = 130, stack_size = 64 })
 
-    self.object:set_properties({
-      textures = { texture },
-    })
+    if texture then
+      self.object:set_properties({
+        textures = { texture },
+      })
+    end
   end,
 })
 
