@@ -245,14 +245,21 @@ local function add_item_label_entity(pos, node)
 end
 
 local function add_count_label_entity(pos, node)
+  local crate_inventory = core.get_inventory({ type = "node", pos = pos })
+  local item_count = get_total_item_count(crate_inventory, impl.CRATE_INVENTORY_LISTNAME)
+
+  -- No need to add a label if the crate contains to items. Otherwise we would
+  -- get a label that says "0", which we don't want.
+  if item_count == 0 then
+    return
+  end
+
   local offset = count_label_offset(node)
   local obj = core.add_entity(vector.add(pos, offset), "overstock:crate_count_label")
 
   if obj then
-    local crate_inventory = core.get_inventory({ type = "node", pos = pos })
     local meta = core.get_meta(pos)
     local itemstack = ItemStack(meta:get_string("overstock:item"))
-    local item_count = get_total_item_count(crate_inventory, impl.CRATE_INVENTORY_LISTNAME)
     local stack_size = itemstack:get_stack_max()
 
     local texture, width = generate_count_texture(item_count, stack_size)
