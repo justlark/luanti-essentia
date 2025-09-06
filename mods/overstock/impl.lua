@@ -3,8 +3,9 @@ local impl = {}
 impl.INVENTORY_LISTNAME = "main"
 impl.CRATE_CAPACITY_STACKS = 64
 impl.BASE_ITEM_LABEL_SIZE = { x = 0.25, y = 0.25 }
-impl.BASE_COUNT_LABEL_SIZE = { x = 0.5, y = 0.15 }
 
+local COUNT_LABEL_HEIGHT = 0.15
+local COUNT_LABEL_CHAR_WIDTH = 0.045
 local COUNT_LABEL_COLOR = "#000000"
 local COUNT_LABEL_OPACITY = "255"
 local CHAR_SIZE = { x = 5, y = 12 }
@@ -92,11 +93,13 @@ local function generate_text_label(chars)
     end
   end
 
-  local total_w = #chars * CHAR_SIZE.x
-  local texture = string.format("[combine:%dx%d:%s", total_w, CHAR_SIZE.y, table.concat(parts, ":"))
+  local total_width = #chars * CHAR_SIZE.x
+  local texture = string.format("[combine:%dx%d:%s", total_width, CHAR_SIZE.y, table.concat(parts, ":"))
   texture = texture .. string.format("^[colorize:%s:%s", COUNT_LABEL_COLOR, COUNT_LABEL_OPACITY)
 
-  return texture
+  local visual_width = #chars * COUNT_LABEL_CHAR_WIDTH
+
+  return texture, visual_width
 end
 
 local function int_to_chars(int)
@@ -225,11 +228,15 @@ local function add_count_label_entity(pos, node)
     local item_count = get_total_item_count(crate_inventory)
     local stack_size = itemstack:get_stack_max()
 
-    local texture = generate_count_texture(item_count, stack_size)
+    local texture, width = generate_count_texture(item_count, stack_size)
 
     obj:set_yaw(label_yaw(node))
     obj:set_properties({
       textures = { texture },
+      visual_size = {
+        x = width,
+        y = COUNT_LABEL_HEIGHT,
+      },
     })
   end
 end

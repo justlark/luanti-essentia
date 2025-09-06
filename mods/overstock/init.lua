@@ -93,10 +93,6 @@ core.register_entity("overstock:crate_count_label", {
     physical = false,
     collide_with_objects = false,
     static_save = false,
-    visual_size = {
-      x = impl.BASE_COUNT_LABEL_SIZE.x,
-      y = impl.BASE_COUNT_LABEL_SIZE.y,
-    },
   },
 })
 
