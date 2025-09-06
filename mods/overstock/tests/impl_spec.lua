@@ -10,7 +10,7 @@ describe("put stack", function()
       return ""
     end
 
-    local new_itemstack = impl.put_stack({}, {}, itemstack)
+    local new_itemstack = impl.put_items({}, {}, itemstack)
 
     assert.equals(itemstack, new_itemstack)
   end)
@@ -32,7 +32,7 @@ describe("put stack", function()
       end,
     }
 
-    local new_itemstack = impl.put_stack({}, {}, itemstack)
+    local new_itemstack = impl.put_items({}, {}, itemstack)
 
     assert.equals(itemstack, new_itemstack)
   end)
@@ -70,7 +70,7 @@ describe("put stack", function()
     impl.remove_label_entity = function(_, _, _) end
     impl.add_item_label_entity = function(_, _, _) end
 
-    impl.put_stack({}, {}, itemstack)
+    impl.put_items({}, {}, itemstack)
   end)
 
   it("replaces the item label", function()
@@ -113,7 +113,7 @@ describe("put stack", function()
       assert.equals(item_name, this_item_name)
     end
 
-    impl.put_stack(pos, node, itemstack)
+    impl.put_items(pos, node, itemstack)
   end)
 
   it("moves the itemstack from the player's hand to the crate's inventory", function()
@@ -160,7 +160,7 @@ describe("put stack", function()
     impl.remove_label_entity = function(_, _, _) end
     impl.add_item_label_entity = function(_, _, _) end
 
-    impl.put_stack(pos, node, itemstack)
+    impl.put_items(pos, node, itemstack)
 
     assert(was_cleared, "Expected itemstack to be cleared after being added to crate inventory")
   end)
@@ -206,7 +206,7 @@ describe("put stack", function()
     impl.remove_label_entity = function(_, _, _) end
     impl.add_item_label_entity = function(_, _, _) end
 
-    impl.put_stack(pos, node, itemstack)
+    impl.put_items(pos, node, itemstack)
 
     assert(not was_cleared, "Expected itemstack to not be cleared once crate inventory is full")
   end)
