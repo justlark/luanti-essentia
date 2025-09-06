@@ -123,7 +123,11 @@ local function generate_count_texture(item_count, stack_size)
 
   local chars = {}
 
-  if stacks == 0 then
+  if stack_size == 1 then
+    for _, char in ipairs(int_to_chars(stacks)) do
+      table.insert(chars, char)
+    end
+  elseif stacks == 0 then
     for _, char in ipairs(int_to_chars(remainder)) do
       table.insert(chars, char)
     end
