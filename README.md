@@ -38,3 +38,6 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <https://www.gnu.org/licenses/>.
+
+Unless otherwise specified, media is licensed under [CC BY-SA
+4.0](https://creativecommons.org/licenses/by-sa/4.0/).
