@@ -18,8 +18,7 @@ core.register_node("overstock:crate", {
   paramtype2 = "4dir",
   _mcl_hardness = 2,
   _doc_items_longdesc = "Store large quantities of a single item.",
-  _doc_items_usagehelp =
-  "Right-click to add a stack. Double right-click to add all. Punch to take a stack. Sneak-punch to take a single item.",
+  _doc_items_usagehelp = "Right-click to add a stack. Double right-click to add all. Punch to take a stack. Sneak-punch to take a single item.",
   sounds = mcl_sounds.node_sound_wood_defaults(),
   groups = {
     handy = 1,
@@ -30,7 +29,7 @@ core.register_node("overstock:crate", {
   on_construct = function(pos)
     local meta = core.get_meta(pos)
     local inventory = meta:get_inventory()
-    inventory:set_size(impl.INVENTORY_LISTNAME, impl.CRATE_CAPACITY_STACKS)
+    inventory:set_size(impl.CRATE_INVENTORY_LISTNAME, impl.CRATE_CAPACITY_STACKS)
   end,
 
   on_rightclick = function(pos, node, player, itemstack, _)
@@ -77,9 +76,9 @@ core.register_craft({
   type = "shaped",
   output = "overstock:crate 1",
   recipe = {
-    { "group:tree",          "group:wood_slab",  "group:tree" },
+    { "group:tree", "group:wood_slab", "group:tree" },
     { "mcl_core:iron_ingot", "mcl_chests:chest", "mcl_core:iron_ingot" },
-    { "group:tree",          "group:tree",       "group:tree" },
+    { "group:tree", "group:tree", "group:tree" },
   },
 })
 

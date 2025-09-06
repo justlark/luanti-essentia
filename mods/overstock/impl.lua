@@ -1,6 +1,6 @@
 local impl = {}
 
-impl.INVENTORY_LISTNAME = "main"
+impl.CRATE_INVENTORY_LISTNAME = "main"
 impl.CRATE_CAPACITY_STACKS = 64
 impl.BASE_ITEM_LABEL_SIZE = { x = 0.25, y = 0.25 }
 
@@ -194,12 +194,12 @@ function impl.destroy_label(pos, node)
   destroy_count_label(pos, node)
 end
 
-local function get_total_item_count(inventory)
+local function get_total_item_count(inventory, listname)
   local total = 0
-  local size = inventory:get_size(impl.INVENTORY_LISTNAME)
+  local size = inventory:get_size(listname)
 
   for i = 1, size do
-    local stack = inventory:get_stack(impl.INVENTORY_LISTNAME, i)
+    local stack = inventory:get_stack(listname, i)
     total = total + stack:get_count()
   end
 
@@ -252,7 +252,7 @@ local function add_count_label_entity(pos, node)
     local crate_inventory = core.get_inventory({ type = "node", pos = pos })
     local meta = core.get_meta(pos)
     local itemstack = ItemStack(meta:get_string("overstock:item"))
-    local item_count = get_total_item_count(crate_inventory)
+    local item_count = get_total_item_count(crate_inventory, impl.CRATE_INVENTORY_LISTNAME)
     local stack_size = itemstack:get_stack_max()
 
     local texture, width = generate_count_texture(item_count, stack_size)
@@ -295,7 +295,7 @@ function impl.take_items(pos, node, puncher, quantity)
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
   local crate_itemstack = ItemStack(item_name)
 
-  if not crate_inventory:contains_item(impl.INVENTORY_LISTNAME, crate_itemstack) then
+  if not crate_inventory:contains_item(impl.CRATE_INVENTORY_LISTNAME, crate_itemstack) then
     -- The crate is empty.
     return
   end
@@ -324,16 +324,16 @@ function impl.take_items(pos, node, puncher, quantity)
 
   crate_itemstack:set_count(actual_take_quantity)
 
-  local wielded_itemstack = player_inventory:get_stack(impl.INVENTORY_LISTNAME, puncher:get_wield_index())
-  local taken_itemstack = crate_inventory:remove_item(impl.INVENTORY_LISTNAME, crate_itemstack)
+  local wielded_itemstack = player_inventory:get_stack("main", puncher:get_wield_index())
+  local taken_itemstack = crate_inventory:remove_item(impl.CRATE_INVENTORY_LISTNAME, crate_itemstack)
 
   -- If the player is wielding a stack of the type in the crate, add the taken
   -- items to that stack. Otherwise, add the taken items to the player's
   -- inventory.
   if wielded_itemstack:is_empty() then
-    player_inventory:set_stack(impl.INVENTORY_LISTNAME, puncher:get_wield_index(), taken_itemstack)
+    player_inventory:set_stack("main", puncher:get_wield_index(), taken_itemstack)
   else
-    player_inventory:add_item(impl.INVENTORY_LISTNAME, taken_itemstack)
+    player_inventory:add_item("main", taken_itemstack)
   end
 
   core.sound_play("item_take", {
@@ -347,7 +347,7 @@ function impl.take_items(pos, node, puncher, quantity)
   destroy_count_label(pos, node)
   add_count_label_entity(pos, node)
 
-  if not crate_inventory:contains_item(impl.INVENTORY_LISTNAME, ItemStack(item_name)) then
+  if not crate_inventory:contains_item(impl.CRATE_INVENTORY_LISTNAME, ItemStack(item_name)) then
     -- We've taken the last item from the crate, so remove the label.
     meta:set_string("overstock:item", "")
     impl.destroy_label(pos, node)
@@ -380,7 +380,7 @@ function impl.put_items(pos, node, itemstack, player, quantity)
   meta:set_string("overstock:item", item_name)
 
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
-  local remaining_items = crate_inventory:add_item(impl.INVENTORY_LISTNAME, itemstack)
+  local remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, itemstack)
 
   if remaining_items and remaining_items:is_empty() then
     itemstack:clear()
@@ -388,19 +388,19 @@ function impl.put_items(pos, node, itemstack, player, quantity)
 
   if quantity == impl.PutQuantity.ALL then
     local player_inventory = player:get_inventory()
-    local itemstacks = player_inventory:get_list(impl.INVENTORY_LISTNAME)
+    local itemstacks = player_inventory:get_list("main")
 
     for _, stack in ipairs(itemstacks) do
       if stack:get_name() == item_name then
-        remaining_items = crate_inventory:add_item(impl.INVENTORY_LISTNAME, stack)
+        remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, stack)
 
         if remaining_items and remaining_items:is_empty() then
-          player_inventory:remove_item(impl.INVENTORY_LISTNAME, stack)
+          player_inventory:remove_item("main", stack)
         else
           -- The crate filled up, so we weren't able to add the entire stack.
           local itemstack_to_remove = ItemStack(item_name)
           itemstack_to_remove:set_count(stack:get_count() - remaining_items:get_count() + 1)
-          player_inventory:remove_item(impl.INVENTORY_LISTNAME, itemstack_to_remove)
+          player_inventory:remove_item("main", itemstack_to_remove)
         end
       end
     end
@@ -415,10 +415,10 @@ end
 
 function impl.drop_inventory(pos)
   local meta = core.get_meta(pos)
-  local inventory = meta and meta:get_inventory()
+  local crate_inventory = meta and meta:get_inventory()
 
-  if inventory then
-    local list = inventory:get_list(impl.INVENTORY_LISTNAME) or {}
+  if crate_inventory then
+    local list = crate_inventory:get_list(impl.CRATE_INVENTORY_LISTNAME) or {}
     for _, stack in ipairs(list) do
       if stack and not stack:is_empty() then
         core.add_item(pos, stack)
