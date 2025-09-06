@@ -17,6 +17,7 @@ core.register_node("overstock:crate", {
   },
   paramtype2 = "4dir",
   _mcl_hardness = 2,
+  sounds = mcl_sounds.node_sound_wood_defaults(),
   groups = {
     handy = 1,
     axey = 1,

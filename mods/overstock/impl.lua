@@ -336,6 +336,13 @@ function impl.take_items(pos, node, puncher, quantity)
     player_inventory:add_item(impl.INVENTORY_LISTNAME, taken_itemstack)
   end
 
+  core.sound_play("item_take", {
+    pos = pos,
+    gain = 0.3,
+    max_hear_distance = 16,
+    pitch = math.random(70, 110) / 100,
+  }, true)
+
   -- Refresh the item count on the label.
   destroy_count_label(pos, node)
   add_count_label_entity(pos, node)
