@@ -16,7 +16,8 @@ core.register_node("overstock:crate", {
     "overstock_crate_front.png",
   },
   paramtype2 = "4dir",
-  _mcl_hardness = 2,
+  _mcl_hardness = 2.5,
+  _mcl_blast_resistance = 2.5,
   _doc_items_longdesc = "Store large quantities of a single item.",
   _doc_items_usagehelp = "Right-click to add a stack. Double right-click to add all. Punch to take a stack. Sneak-punch to take a single item.",
   sounds = mcl_sounds.node_sound_wood_defaults(),
@@ -25,7 +26,10 @@ core.register_node("overstock:crate", {
     axey = 1,
     material_wood = 1,
     container = 2,
+    flammable = -1,
+    deco_block = 1,
   },
+
   on_construct = function(pos)
     local meta = core.get_meta(pos)
     local inventory = meta:get_inventory()
@@ -70,6 +74,18 @@ core.register_node("overstock:crate", {
 
   after_destruct = function(pos, node)
     impl.destroy_label(pos, node)
+  end,
+
+  allow_metadata_inventory_move = function(pos, _, _, _, _, count, player)
+    return impl.protection_check_move(pos, count, player)
+  end,
+
+  allow_metadata_inventory_take = function(pos, _, _, stack, player)
+    return impl.protection_check_put_take(pos, stack, player)
+  end,
+
+  allow_metadata_inventory_put = function(pos, _, _, stack, player)
+    return impl.protection_check_put_take(pos, stack, player)
   end,
 })
 

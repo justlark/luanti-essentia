@@ -436,4 +436,24 @@ function impl.drop_inventory(pos)
   end
 end
 
+function impl.protection_check_move(pos, count, player)
+  local name = player:get_player_name()
+  if core.is_protected(pos, name) then
+    core.record_protection_violation(pos, name)
+    return 0
+  else
+    return count
+  end
+end
+
+function impl.protection_check_put_take(pos, stack, player)
+  local name = player:get_player_name()
+  if core.is_protected(pos, name) then
+    core.record_protection_violation(pos, name)
+    return 0
+  else
+    return stack:get_count()
+  end
+end
+
 return impl
