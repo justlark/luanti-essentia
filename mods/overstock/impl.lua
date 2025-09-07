@@ -1,6 +1,20 @@
 local impl = {}
 
-impl.CRATE_INVENTORY_LISTNAME = "main"
+-- We don't use the typical default inventory name "main" because crates have
+-- special rules they need to enforce, such as only allowing one type of item
+-- in the crate at a time, and making sure the label is updated with the
+-- current item type and count.
+--
+-- Other mods that try to interact with crates like chests will not be aware of
+-- these rules and break them. There's no easy way for us to enforce these
+-- rules when other mods are directly manipulating the inventory, because
+-- callbacks like `allow_metadata_inventory_*` and `on_metadata_inventory_*`
+-- are not triggered when other mods directly manipulate the inventory.
+--
+-- Unless we find a better solution, we'll have to manually implement support
+-- for mods that interact with inventories.
+impl.CRATE_INVENTORY_LISTNAME = "crate"
+
 impl.CRATE_CAPACITY_STACKS = 64
 impl.BASE_ITEM_LABEL_SIZE = { x = 0.25, y = 0.25 }
 
@@ -206,7 +220,7 @@ local function get_total_item_count(inventory, listname)
   return total
 end
 
-local function get_free_space_for_item(inventory, item_name)
+local function get_free_space_for_item(inventory, listname, item_name)
   if not inventory then
     return 0
   end
@@ -215,7 +229,7 @@ local function get_free_space_for_item(inventory, item_name)
   local stack_max = stack:get_stack_max()
   local free = 0
 
-  local list = inventory:get_list("main") or {}
+  local list = inventory:get_list(listname) or {}
   for _, slot in ipairs(list) do
     if slot:is_empty() then
       -- The full stack size is available.
@@ -318,7 +332,7 @@ function impl.take_items(pos, node, puncher, quantity)
   end
 
   local player_inventory = puncher:get_inventory()
-  local free_space_for_item = get_free_space_for_item(player_inventory, item_name)
+  local free_space_for_item = get_free_space_for_item(player_inventory, "main", item_name)
 
   -- Account for the fact that the player may not have enough space in their
   -- inventory to take a full stack or even a single item.
