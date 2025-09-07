@@ -360,11 +360,15 @@ function impl.take_items(pos, node, puncher, quantity)
   local wielded_itemstack = player_inventory:get_stack("main", puncher:get_wield_index())
   local taken_itemstack = crate_inventory:remove_item(CRATE_INVENTORY_LISTNAME, crate_itemstack)
 
-  -- If the player is wielding a stack of the type in the crate, add the taken
-  -- items to that stack. Otherwise, add the taken items to the player's
-  -- inventory.
-  if wielded_itemstack:is_empty() then
-    player_inventory:set_stack("main", puncher:get_wield_index(), taken_itemstack)
+  if wielded_itemstack:get_name() == item_name or wielded_itemstack:is_empty() then
+    -- The player is either holding a stack of this item or is empty-handed.
+    -- Let's try to fill that inventory slot first.
+    local remaining = wielded_itemstack:add_item(taken_itemstack)
+    player_inventory:set_stack("main", puncher:get_wield_index(), wielded_itemstack)
+
+    if not remaining:is_empty() then
+      player_inventory:add_item("main", remaining)
+    end
   else
     player_inventory:add_item("main", taken_itemstack)
   end
