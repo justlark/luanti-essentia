@@ -376,17 +376,18 @@ function impl.put_items(pos, node, itemstack, player, quantity)
     return itemstack
   end
 
-  local meta = core.get_meta(pos)
-  local existing_item_name = meta:get_string("overstock:item")
+  local crate_inventory = core.get_inventory({ type = "node", pos = pos })
 
-  if existing_item_name ~= "" and existing_item_name ~= item_name then
+  if
+    not crate_inventory:is_empty(impl.CRATE_INVENTORY_LISTNAME)
+    and not crate_inventory:contains_item(impl.CRATE_INVENTORY_LISTNAME, ItemStack(item_name), true)
+  then
     -- There is already an item of a different type in the crate.
     return itemstack
   end
 
+  local meta = core.get_meta(pos)
   meta:set_string("overstock:item", item_name)
-
-  local crate_inventory = core.get_inventory({ type = "node", pos = pos })
 
   if quantity == impl.PutQuantity.STACK then
     local remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, itemstack)
