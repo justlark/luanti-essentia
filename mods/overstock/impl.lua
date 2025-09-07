@@ -13,16 +13,32 @@ local impl = {}
 --
 -- Unless we find a better solution, we'll have to manually implement support
 -- for mods that interact with inventories.
-impl.CRATE_INVENTORY_LISTNAME = "crate"
+local CRATE_INVENTORY_LISTNAME = "crate"
 
-impl.CRATE_CAPACITY_STACKS = 64
-impl.BASE_ITEM_LABEL_SIZE = { x = 0.25, y = 0.25 }
+local CRATE_CAPACITY_STACKS = 64
 
 local COUNT_LABEL_HEIGHT = 0.15
 local COUNT_LABEL_CHAR_WIDTH = 0.045
 local COUNT_LABEL_COLOR = "#000000"
 local COUNT_LABEL_OPACITY = "255"
+local COUNT_LABEL_KNOWN_CHARS = {
+  ["0"] = true,
+  ["1"] = true,
+  ["2"] = true,
+  ["3"] = true,
+  ["4"] = true,
+  ["5"] = true,
+  ["6"] = true,
+  ["7"] = true,
+  ["8"] = true,
+  ["9"] = true,
+  ["plus"] = true,
+  ["times"] = true,
+}
+
 local CHAR_SIZE = { x = 5, y = 12 }
+
+impl.BASE_ITEM_LABEL_SIZE = { x = 0.25, y = 0.25 }
 
 local function label_face(face)
   local faces = {
@@ -71,23 +87,14 @@ local function label_yaw(node)
   return label_face(face_dir(node)).yaw
 end
 
-local KNOWN_CHARS = {
-  ["0"] = true,
-  ["1"] = true,
-  ["2"] = true,
-  ["3"] = true,
-  ["4"] = true,
-  ["5"] = true,
-  ["6"] = true,
-  ["7"] = true,
-  ["8"] = true,
-  ["9"] = true,
-  ["plus"] = true,
-  ["times"] = true,
-}
+function impl.initialize_inventory(pos)
+  local meta = core.get_meta(pos)
+  local inventory = meta:get_inventory()
+  inventory:set_size(CRATE_INVENTORY_LISTNAME, CRATE_CAPACITY_STACKS)
+end
 
 local function char_texture(char)
-  if KNOWN_CHARS[char] then
+  if COUNT_LABEL_KNOWN_CHARS[char] then
     return "overstock_char_" .. char .. ".png"
   end
 end
@@ -260,7 +267,7 @@ end
 
 local function add_count_label_entity(pos, node)
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
-  local item_count = get_total_item_count(crate_inventory, impl.CRATE_INVENTORY_LISTNAME)
+  local item_count = get_total_item_count(crate_inventory, CRATE_INVENTORY_LISTNAME)
 
   -- No need to add a label if the crate contains to items. Otherwise we would
   -- get a label that says "0", which we don't want.
@@ -316,7 +323,7 @@ function impl.take_items(pos, node, puncher, quantity)
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
   local crate_itemstack = ItemStack(item_name)
 
-  if not crate_inventory:contains_item(impl.CRATE_INVENTORY_LISTNAME, crate_itemstack) then
+  if not crate_inventory:contains_item(CRATE_INVENTORY_LISTNAME, crate_itemstack) then
     -- The crate is empty.
     return
   end
@@ -346,7 +353,7 @@ function impl.take_items(pos, node, puncher, quantity)
   crate_itemstack:set_count(actual_take_quantity)
 
   local wielded_itemstack = player_inventory:get_stack("main", puncher:get_wield_index())
-  local taken_itemstack = crate_inventory:remove_item(impl.CRATE_INVENTORY_LISTNAME, crate_itemstack)
+  local taken_itemstack = crate_inventory:remove_item(CRATE_INVENTORY_LISTNAME, crate_itemstack)
 
   -- If the player is wielding a stack of the type in the crate, add the taken
   -- items to that stack. Otherwise, add the taken items to the player's
@@ -368,7 +375,7 @@ function impl.take_items(pos, node, puncher, quantity)
   destroy_count_label(pos, node)
   add_count_label_entity(pos, node)
 
-  if not crate_inventory:contains_item(impl.CRATE_INVENTORY_LISTNAME, ItemStack(item_name)) then
+  if not crate_inventory:contains_item(CRATE_INVENTORY_LISTNAME, ItemStack(item_name)) then
     -- We've taken the last item from the crate, so remove the label.
     meta:set_string("overstock:item", "")
     impl.destroy_label(pos, node)
@@ -393,8 +400,8 @@ function impl.put_items(pos, node, itemstack, player, quantity)
   local crate_inventory = core.get_inventory({ type = "node", pos = pos })
 
   if
-    not crate_inventory:is_empty(impl.CRATE_INVENTORY_LISTNAME)
-    and not crate_inventory:contains_item(impl.CRATE_INVENTORY_LISTNAME, ItemStack(item_name), true)
+    not crate_inventory:is_empty(CRATE_INVENTORY_LISTNAME)
+    and not crate_inventory:contains_item(CRATE_INVENTORY_LISTNAME, ItemStack(item_name), true)
   then
     -- There is already an item of a different type in the crate.
     return itemstack
@@ -404,7 +411,7 @@ function impl.put_items(pos, node, itemstack, player, quantity)
   meta:set_string("overstock:item", item_name)
 
   if quantity == impl.PutQuantity.STACK then
-    local remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, itemstack)
+    local remaining_items = crate_inventory:add_item(CRATE_INVENTORY_LISTNAME, itemstack)
 
     if remaining_items and remaining_items:is_empty() then
       itemstack:clear()
@@ -415,7 +422,7 @@ function impl.put_items(pos, node, itemstack, player, quantity)
 
     for _, stack in ipairs(itemstacks) do
       if stack:get_name() == item_name then
-        local remaining_items = crate_inventory:add_item(impl.CRATE_INVENTORY_LISTNAME, stack)
+        local remaining_items = crate_inventory:add_item(CRATE_INVENTORY_LISTNAME, stack)
 
         if remaining_items and remaining_items:is_empty() then
           player_inventory:remove_item("main", stack)
@@ -441,7 +448,7 @@ function impl.drop_inventory(pos)
   local crate_inventory = meta and meta:get_inventory()
 
   if crate_inventory then
-    local list = crate_inventory:get_list(impl.CRATE_INVENTORY_LISTNAME) or {}
+    local list = crate_inventory:get_list(CRATE_INVENTORY_LISTNAME) or {}
     for _, stack in ipairs(list) do
       if stack and not stack:is_empty() then
         core.add_item(pos, stack)

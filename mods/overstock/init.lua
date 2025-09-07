@@ -35,9 +35,7 @@ core.register_node("overstock:crate", {
   },
 
   on_construct = function(pos)
-    local meta = core.get_meta(pos)
-    local inventory = meta:get_inventory()
-    inventory:set_size(impl.CRATE_INVENTORY_LISTNAME, impl.CRATE_CAPACITY_STACKS)
+    impl.initialize_inventory(pos)
   end,
 
   on_rightclick = function(pos, node, player, itemstack, _)
