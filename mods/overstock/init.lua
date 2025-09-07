@@ -49,13 +49,12 @@ core.register_node("overstock:crate", {
     -- Treat a delay of < 300ms as a double right-click.
     if now - last.time < DOUBLE_CLICK_THRESHOLD_US then
       -- Double right click.
-      local dummy_itemstack = ItemStack(last.item)
-      impl.put_items(pos, node, dummy_itemstack, player, impl.PutQuantity.ALL)
+      impl.put_all_items(pos, node, last.item, player)
       last_crate_rightclick[player_name] = { time = 0, item = "" }
     else
       -- Single right click.
       local item_name = itemstack:get_name()
-      impl.put_items(pos, node, itemstack, player, impl.PutQuantity.STACK)
+      impl.put_item_stack(pos, node, itemstack)
       last_crate_rightclick[player_name] = { time = now, item = item_name }
     end
   end,
