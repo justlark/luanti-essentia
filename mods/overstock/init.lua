@@ -158,3 +158,8 @@ core.register_lbm({
     impl.spawn_label(pos, node)
   end,
 })
+
+-- Prevent crates from being pushed by VoxeLibre pistons.
+if mesecon and mesecon.register_mvps_stopper then
+  mesecon.register_mvps_stopper("overstock:crate")
+end
