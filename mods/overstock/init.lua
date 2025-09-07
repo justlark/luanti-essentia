@@ -25,7 +25,11 @@ core.register_node("overstock:crate", {
     handy = 1,
     axey = 1,
     material_wood = 1,
-    container = 2,
+    -- TODO: Add support for VoxeLibre hoppers by setting this to `group = 2`
+    -- and implementing the `_mcl_hoppers_on_*` callbacks. We can't rely on
+    -- hoppers' default behavior for nodes. For more info, find the comment
+    -- explaining why we named the inventory list "crate" instead of "main".
+    container = 1,
     flammable = -1,
     deco_block = 1,
   },
