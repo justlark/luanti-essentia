@@ -9,7 +9,7 @@ optimize-textures:
   ./tools/optimize-textures.nu
 
 # copy a mod into the Luanti flatpak's mods directory
-install-flatpak mod:
+install-flatpak:
   mkdir --parents {{ flatpak_mods_dir }}
-  rm --recursive --force {{ flatpak_mods_dir }}/{{ mod }}
-  cp --recursive ./sounds/ ./textures/ ./mod.conf ./*.lua {{ flatpak_mods_dir }}/{{ mod }}
+  rm --recursive --force {{ flatpak_mods_dir }}/overstock
+  cp --recursive ./sounds/ ./textures/ ./mod.conf ./*.lua {{ flatpak_mods_dir }}/overstock
