@@ -12,4 +12,4 @@ optimize-textures:
 install-flatpak mod:
   mkdir --parents {{ flatpak_mods_dir }}
   rm --recursive --force {{ flatpak_mods_dir }}/{{ mod }}
-  cp --recursive ./mods/{{ mod }} {{ flatpak_mods_dir }}/{{ mod }}
+  cp --recursive ./sounds/ ./textures/ ./mod.conf ./*.lua {{ flatpak_mods_dir }}/{{ mod }}
