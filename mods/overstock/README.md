@@ -1,7 +1,11 @@
 # Overstock
 
-Crates for storing large quantities of a single item. Inspired by barrels from
-the Minecraft mod Factorization and later implementations such as JABBA.
+Storage crates for storing large quantities of a single item. Inspired by
+barrels from the Minecraft mod Factorization and later implementations such as
+JABBA.
+
+Storage crates currently do not support VoxeLibre hoppers or other mods that
+interact with inventories. Support for hoppers may be added in the future.
 
 ## License
 
