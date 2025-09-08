@@ -2,6 +2,14 @@ local impl = dofile(core.get_modpath("overstock") .. "/impl.lua")
 
 local DOUBLE_CLICK_THRESHOLD_US = 300000 -- 300ms
 
+local function crate_sounds()
+  if core.get_modpath("mcl_sounds") then
+    return mcl_sounds.node_sound_wood_defaults()
+  else
+    return nil
+  end
+end
+
 -- The item name and click time indexed by player name.
 local last_crate_rightclick = {}
 
@@ -20,7 +28,7 @@ core.register_node("overstock:crate", {
   _mcl_blast_resistance = 2.5,
   _doc_items_longdesc = "Store large quantities of a single item.",
   _doc_items_usagehelp = "Right-click to add a stack. Double right-click to add all. Punch to take a stack. Sneak-punch to take a single item.",
-  sounds = mcl_sounds.node_sound_wood_defaults(),
+  sounds = crate_sounds(),
   groups = {
     handy = 1,
     axey = 1,
@@ -105,15 +113,17 @@ core.register_node("overstock:crate", {
   end,
 })
 
-core.register_craft({
-  type = "shaped",
-  output = "overstock:crate 1",
-  recipe = {
-    { "group:tree", "group:wood_slab", "group:tree" },
-    { "mcl_core:iron_ingot", "mcl_chests:chest", "mcl_core:iron_ingot" },
-    { "group:tree", "group:tree", "group:tree" },
-  },
-})
+if core.get_modpath("mcl_core") and core.get_modpath("mcl_chests") then
+  core.register_craft({
+    type = "shaped",
+    output = "overstock:crate 1",
+    recipe = {
+      { "group:tree", "group:wood_slab", "group:tree" },
+      { "mcl_core:iron_ingot", "mcl_chests:chest", "mcl_core:iron_ingot" },
+      { "group:tree", "group:tree", "group:tree" },
+    },
+  })
+end
 
 core.register_entity("overstock:crate_item_label", {
   initial_properties = {
@@ -172,7 +182,7 @@ core.register_lbm({
 })
 
 -- Prevent crates from being pushed by VoxeLibre pistons.
-if core.get_modpath("mesecons_mvps") ~= nil then
+if core.get_modpath("mesecons_mvps") then
   mesecon.register_mvps_stopper("overstock:crate")
   mesecon.register_mvps_unmov("overstock:crate_count_label")
   mesecon.register_mvps_unmov("overstock:crate_item_label")
