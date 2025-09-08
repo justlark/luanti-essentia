@@ -418,7 +418,7 @@ function impl.put_item_stack(pos, node, itemstack)
   return itemstack
 end
 
-function impl.put_all_items(pos, node, item_name, player)
+function impl.put_all_items(pos, node, itemstack, item_name, player)
   if item_name == "" then
     return
   end
@@ -435,6 +435,11 @@ function impl.put_all_items(pos, node, item_name, player)
 
   local meta = core.get_meta(pos)
   meta:set_string("overstock:item", item_name)
+
+  if not itemstack:is_empty() then
+    local remaining_items = crate_inventory:add_item(CRATE_INVENTORY_LISTNAME, itemstack)
+    itemstack:set_count(remaining_items:get_count())
+  end
 
   local player_inventory = player:get_inventory()
   local itemstacks = player_inventory:get_list("main")

@@ -49,7 +49,20 @@ core.register_node("overstock:crate", {
     -- Treat a delay of < 300ms as a double right-click.
     if now - last.time < DOUBLE_CLICK_THRESHOLD_US then
       -- Double right click.
-      impl.put_all_items(pos, node, last.item, player)
+      if itemstack:get_name() == last.item then
+        -- Typically, you would expect the player's hand to be empty at this
+        -- point, since the first click would have already been captured by
+        -- this handler. However, if they pick up a stack of the same item
+        -- between the first and second clicks, we'll need to make sure we're
+        -- putting that item into the crate as well.
+        impl.put_all_items(pos, node, itemstack, last.item, player)
+      else
+        -- The player's hand is empty or contains a stack of a different item.
+        -- You can't get the item name from an empty itemstack, so we also need
+        -- to pass the item name.
+        impl.put_all_items(pos, node, ItemStack(), last.item, player)
+      end
+
       last_crate_rightclick[player_name] = { time = 0, item = "" }
     else
       -- Single right click.
