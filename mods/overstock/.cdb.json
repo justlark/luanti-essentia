@@ -1,0 +1,21 @@
+{
+  "type": "MOD",
+  "title": "Overstock",
+  "name": "overstock",
+  "short_description": "Adds storage crates, a block which stores large quantities of a single item",
+  "dev_state": "BETA",
+  "tags": [
+    "storage"
+  ],
+  "content_warnings": [],
+  "license": "GPL-3.0-or-later",
+  "media_license": "CC-BY-SA-4.0",
+  "long_description": "This mod adds **storage crates**, a container which holds up to 64 stacks of a single item. There's no inventory grid; right-click to put stacks in, and punch to take stacks out.\n\n- Right-click to add a stack.\n- Double right-click to add all the items in your inventory of that type.\n- Punch to take a stack.\n- Sneak-punch to take a single item.",
+  "repo": "https://github.com/justlark/luanti-essentia",
+  "website": null,
+  "issue_tracker": "https://github.com/justlark/luanti-essentia/issues",
+  "forums": null,
+  "video_url": null,
+  "donate_url": null,
+  "translation_url": null
+}
