@@ -56,17 +56,15 @@ core.register_node("overstock:crate", {
         -- this handler. However, if they pick up a stack of the same item
         -- between the first and second clicks, we'll need to make sure we're
         -- putting that item into the crate as well.
-        core.chat_send_all("itemstack")
         impl.put_all_items(pos, node, itemstack, last.item, player)
       else
         -- The player's hand is empty or contains a stack of a different item.
         -- You can't get the item name from an empty itemstack, so we also need
         -- to pass the item name.
-        core.chat_send_all("ItemStack()")
         impl.put_all_items(pos, node, ItemStack(), last.item, player)
       end
 
-      last_crate_rightclick[player_name] = { time = 0, item = "", pos = nil }
+      last_crate_rightclick[player_name] = nil
     else
       -- Single right click.
       local item_name = itemstack:get_name()
