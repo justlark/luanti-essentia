@@ -39,6 +39,7 @@ core.register_node("overstock:crate", {
   end,
 
   on_rightclick = function(pos, node, player, itemstack, _)
+    local item_name = itemstack:get_name()
     local player_name = player:get_player_name()
     local now = core.get_us_time()
     local last = last_crate_rightclick[player_name] or {
@@ -63,14 +64,12 @@ core.register_node("overstock:crate", {
         -- to pass the item name.
         impl.put_all_items(pos, node, ItemStack(), last.item, player)
       end
-
-      last_crate_rightclick[player_name] = nil
     else
       -- Single right click.
-      local item_name = itemstack:get_name()
       impl.put_item_stack(pos, node, itemstack)
-      last_crate_rightclick[player_name] = { time = now, item = item_name, pos = pos, }
     end
+
+    last_crate_rightclick[player_name] = { time = now, item = item_name, pos = pos }
 
     player:get_inventory():set_stack("main", player:get_wield_index(), itemstack)
   end,
