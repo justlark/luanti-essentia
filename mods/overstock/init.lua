@@ -5,6 +5,8 @@ local DOUBLE_CLICK_THRESHOLD_US = 300000 -- 300ms
 local function crate_sounds()
   if core.get_modpath("mcl_sounds") then
     return mcl_sounds.node_sound_wood_defaults()
+  elseif core.get_modpath("default") then
+    return default.node_sound_wood_defaults()
   else
     return nil
   end
@@ -38,8 +40,11 @@ core.register_node("overstock:crate", {
     -- hoppers' default behavior for nodes. For more info, find the comment
     -- explaining why we named the inventory list "crate" instead of "main".
     container = 1,
-    flammable = -1,
     deco_block = 1,
+
+    -- For Minetest Game support.
+    choppy = 1,
+    oddly_breakable_by_hand = 1,
   },
 
   on_construct = function(pos)
@@ -120,6 +125,16 @@ if core.get_modpath("mcl_core") and core.get_modpath("mcl_chests") then
     recipe = {
       { "group:tree", "group:wood_slab", "group:tree" },
       { "mcl_core:iron_ingot", "mcl_chests:chest", "mcl_core:iron_ingot" },
+      { "group:tree", "group:tree", "group:tree" },
+    },
+  })
+elseif core.get_modpath("default") then
+  core.register_craft({
+    type = "shaped",
+    output = "overstock:crate 1",
+    recipe = {
+      { "group:tree", "group:wood", "group:tree" },
+      { "default:steel_ingot", "default:chest", "default:steel_ingot" },
       { "group:tree", "group:tree", "group:tree" },
     },
   })

@@ -23,8 +23,8 @@ the block to put items in or take items out.
 - Punch to take a stack.
 - Sneak-punch to take a single item.
 
-VoxeLibre is an optional dependency only to provide a crafting recipe. This mod
-should be usable with most games if you register a crafting recipe.
+VoxeLibre and Minetest Game are supported, and other games may work as well if
+you register a crafting recipe.
 
 ## Copyright
 
