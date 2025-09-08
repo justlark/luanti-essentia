@@ -157,6 +157,6 @@ core.register_lbm({
 })
 
 -- Prevent crates from being pushed by VoxeLibre pistons.
-if mesecon and mesecon.register_mvps_stopper then
+if core.get_modpath("mesecons_mvps") ~= nil then
   mesecon.register_mvps_stopper("overstock:crate")
 end
