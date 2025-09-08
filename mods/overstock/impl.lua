@@ -445,14 +445,24 @@ function impl.put_all_items(pos, node, itemstack, item_name, player)
   local itemstacks = player_inventory:get_list("main")
 
   for i, stack in ipairs(itemstacks) do
-    if stack:get_name() == item_name then
-      local remaining_items = crate_inventory:add_item(CRATE_INVENTORY_LISTNAME, stack)
-      player_inventory:set_stack("main", i, remaining_items)
-
-      if not remaining_items:is_empty() then
-        break
-      end
+    if stack:get_name() ~= item_name then
+      goto continue
     end
+
+    if i == player:get_wield_index() then
+      -- We've already handled the itemstack in the player's hand.
+      goto continue
+    end
+
+    local remaining_items = crate_inventory:add_item(CRATE_INVENTORY_LISTNAME, stack)
+    player_inventory:set_stack("main", i, remaining_items)
+
+    if not remaining_items:is_empty() then
+      -- The crate is full.
+      break
+    end
+
+    ::continue::
   end
 
   impl.update_label(pos, node)
