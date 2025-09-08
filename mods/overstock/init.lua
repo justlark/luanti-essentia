@@ -42,12 +42,13 @@ core.register_node("overstock:crate", {
     local player_name = player:get_player_name()
     local now = core.get_us_time()
     local last = last_crate_rightclick[player_name] or {
+      pos = nil,
       time = 0,
       item = "",
     }
 
     -- Treat a delay of < 300ms as a double right-click.
-    if now - last.time < DOUBLE_CLICK_THRESHOLD_US then
+    if pos == last.pos and now - last.time < DOUBLE_CLICK_THRESHOLD_US then
       -- Double right click.
       if itemstack:get_name() == last.item then
         -- Typically, you would expect the player's hand to be empty at this
@@ -55,21 +56,25 @@ core.register_node("overstock:crate", {
         -- this handler. However, if they pick up a stack of the same item
         -- between the first and second clicks, we'll need to make sure we're
         -- putting that item into the crate as well.
+        core.chat_send_all("itemstack")
         impl.put_all_items(pos, node, itemstack, last.item, player)
       else
         -- The player's hand is empty or contains a stack of a different item.
         -- You can't get the item name from an empty itemstack, so we also need
         -- to pass the item name.
+        core.chat_send_all("ItemStack()")
         impl.put_all_items(pos, node, ItemStack(), last.item, player)
       end
 
-      last_crate_rightclick[player_name] = { time = 0, item = "" }
+      last_crate_rightclick[player_name] = { time = 0, item = "", pos = nil }
     else
       -- Single right click.
       local item_name = itemstack:get_name()
       impl.put_item_stack(pos, node, itemstack)
-      last_crate_rightclick[player_name] = { time = now, item = item_name }
+      last_crate_rightclick[player_name] = { time = now, item = item_name, pos = pos, }
     end
+
+    player:get_inventory():set_stack("main", player:get_wield_index(), itemstack)
   end,
 
   on_punch = function(pos, node, puncher, _)
