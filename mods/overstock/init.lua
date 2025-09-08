@@ -174,4 +174,6 @@ core.register_lbm({
 -- Prevent crates from being pushed by VoxeLibre pistons.
 if core.get_modpath("mesecons_mvps") ~= nil then
   mesecon.register_mvps_stopper("overstock:crate")
+  mesecon.register_mvps_unmov("overstock:crate_count_label")
+  mesecon.register_mvps_unmov("overstock:crate_item_label")
 end
