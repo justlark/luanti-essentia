@@ -14,12 +14,12 @@ be balanced against the base game.
 
 **A block which stores large quantities of a single item.**
 
-This mod adds **crates**, a block which holds up to 64 stacks of a single item.
-Rather than open an inventory screen, you right or left click on the block to
-put items in or take items out.
+This mod adds **storage crates**, a block which holds up to 64 stacks of a
+single item. Rather than open an inventory screen, you right or left click on
+the block to put items in or take items out.
 
 - Right-click to add a stack.
-- Double right-click to add all the blocks in your inventory of that type.
+- Double right-click to add all the items in your inventory of that type.
 - Punch to take a stack.
 - Sneak-punch to take a single item.
 
