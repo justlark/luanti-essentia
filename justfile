@@ -4,10 +4,6 @@ flatpak_mods_dir := "~/.var/app/org.luanti.luanti/.minetest/mods"
 default:
   @just --list
 
-# run unit tests for a mod
-test mod:
-  cd ./mods/{{ mod }}/tests && ~/.luarocks/bin/busted .
-
 # optimize PNG textures
 optimize-textures:
   ./tools/optimize-textures.nu
