@@ -1,3 +1,3 @@
 /.editorconfig export-ignore
-/tools/ export-ignore
+/tools/** export-ignore
 /justfile export-ignore
